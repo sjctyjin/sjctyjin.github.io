@@ -78,6 +78,324 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-GR00T-N1多模手臂訓練的理解" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/04/15/GR00T-N1%E5%A4%9A%E6%A8%A1%E6%89%8B%E8%87%82%E8%A8%93%E7%B7%B4%E7%9A%84%E7%90%86%E8%A7%A3/" class="article-date">
+  <time class="dt-published" datetime="2025-04-15T04:00:41.000Z" itemprop="datePublished">2025-04-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/04/15/GR00T-N1%E5%A4%9A%E6%A8%A1%E6%89%8B%E8%87%82%E8%A8%93%E7%B7%B4%E7%9A%84%E7%90%86%E8%A7%A3/">GR00T N1</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="GR00T的理解"><a href="#GR00T的理解" class="headerlink" title="GR00T的理解"></a>GR00T的理解</h1><h2 id="🧠-傳統控制思維-vs-GR00T-思維的關鍵區別"><a href="#🧠-傳統控制思維-vs-GR00T-思維的關鍵區別" class="headerlink" title="🧠 傳統控制思維 vs GR00T 思維的關鍵區別"></a>🧠 傳統控制思維 vs GR00T 思維的關鍵區別</h2><table>
+<thead>
+<tr>
+<th>思考邏輯</th>
+<th>傳統控制系統</th>
+<th>GR00T 類學習控制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>你知道什麼？</td>
+<td>我知道「物體在哪裡」→ 所以我算 IK 去那裡</td>
+<td>我知道「畫面長這樣時該怎麼做」→ 所以我做跟人一樣的事</td>
+</tr>
+<tr>
+<td>你怎麼做？</td>
+<td>把畫面轉成目標位置（XYZ, pose）</td>
+<td>把畫面 + 現在狀態 → 推理出下一步要怎麼動</td>
+</tr>
+<tr>
+<td>你會怎麼動？</td>
+<td>解 IK → 得到 joint pose</td>
+<td>模仿人類或數據的 joint sequence</td>
+</tr>
+</tbody></table>
+<h2 id="✅-傳統思維的卡點在哪？"><a href="#✅-傳統思維的卡點在哪？" class="headerlink" title="✅ 傳統思維的卡點在哪？"></a>✅ 傳統思維的卡點在哪？</h2><p>傳統思維還在「我必須先知道水果在哪 → 給座標 → 控制手臂移動」這個邏輯上。</p>
+<p>但像 GR00T &#x2F; Diffusion Policy 的控制思維是：</p>
+<h3 id="🧠「我不需要知道-XYZ-座標，我只需要知道人在這個畫面下會怎麼動。」"><a href="#🧠「我不需要知道-XYZ-座標，我只需要知道人在這個畫面下會怎麼動。」" class="headerlink" title="🧠「我不需要知道 XYZ 座標，我只需要知道人在這個畫面下會怎麼動。」"></a>🧠「我不需要知道 XYZ 座標，我只需要知道人在這個畫面下會怎麼動。」</h3><p>你可以這樣想像：</p>
+<hr>
+<h2 id="🍎-類比：人類是怎麼做的？"><a href="#🍎-類比：人類是怎麼做的？" class="headerlink" title="🍎 類比：人類是怎麼做的？"></a>🍎 類比：人類是怎麼做的？</h2><p>你走到田裡，看到一顆成熟的小黃瓜：</p>
+<ul>
+<li>你<strong>沒有拿尺量出 XYZ 座標</strong></li>
+<li>你只是<strong>看著畫面</strong>，然後<strong>直接移動你的手臂</strong></li>
+</ul>
+<p>也就是說：</p>
+<blockquote>
+<p>你是從「視覺 + 過去經驗」→ 推出一連串連續的 joint command</p>
+</blockquote>
+<h2 id="✅-1-GR00T-是否類似-CLIP，先理解畫面語意後選擇任務？"><a href="#✅-1-GR00T-是否類似-CLIP，先理解畫面語意後選擇任務？" class="headerlink" title="✅ 1. GR00T 是否類似 CLIP，先理解畫面語意後選擇任務？"></a>✅ <strong>1. GR00T 是否類似 CLIP，先理解畫面語意後選擇任務？</strong></h2><p><strong>✔️ 正確，而且這是 GR00T 多模態架構的核心特徵之一。</strong></p>
+<ul>
+<li>GR00T 結合了 <strong>CLIP-style vision encoder</strong> + <strong>task-conditioned policy network</strong>（通常是 transformer）。</li>
+<li>它不是單純辨識畫面有什麼，而是會根據「當前任務語意 + 畫面語境」來決定接下來應該執行哪段動作。</li>
+</ul>
+<h3 id="✅-訓練後推理時流程："><a href="#✅-訓練後推理時流程：" class="headerlink" title="✅ 訓練後推理時流程："></a>✅ 訓練後推理時流程：</h3><ol>
+<li><p>在某個時刻 t，你把當前：</p>
+<ul>
+<li>影像</li>
+<li>joint state</li>
+<li>任務描述（若有）</li>
+</ul>
+<p> 傳進模型
+ </p>
+</li>
+<li><p>模型產生當下 <strong>joint command</strong></p>
+<ul>
+<li>可為 position、velocity、torque 任一</li>
+</ul>
+</li>
+<li><p>傳給 ROS controller 實現當前關節命令</p>
+<ul>
+<li>如 <code>ros2_control</code> or <code>joint_trajectory_controller</code></li>
+</ul>
+</li>
+<li><p>下一時刻再重複步驟（或提前 rollout 整段軌跡）</p>
+</li>
+</ol>
+<p>&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</p>
+<h2 id="✅-GR00T-是怎麼學會的？"><a href="#✅-GR00T-是怎麼學會的？" class="headerlink" title="✅ GR00T 是怎麼學會的？"></a>✅ GR00T 是怎麼學會的？</h2><p>GR00T（或模仿學習控制器）透過人類的示範學習以下對映關係：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">python</span><br><span class="line">複製編輯</span><br><span class="line">policy(image_t, joint_state_t) → joint_action_t+<span class="number">1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>這裡：</p>
+<ul>
+<li><code>image_t</code>: 目前攝影機畫面</li>
+<li><code>joint_state_t</code>: 機械手臂的目前關節角度</li>
+<li><code>joint_action_t+1</code>: 下一步 joint movement（角度或速度）</li>
+</ul>
+<p>透過上千上萬筆這樣的示範，GR00T 學到：</p>
+<blockquote>
+<p><font color=#FF0000> 「畫面這樣，手臂這樣，那我下一步該怎麼動？」</font></p>
+</blockquote>
+<hr>
+<h2 id="✅-但為什麼他能知道「要往哪裡抓」？"><a href="#✅-但為什麼他能知道「要往哪裡抓」？" class="headerlink" title="✅ 但為什麼他能知道「要往哪裡抓」？"></a>✅ 但為什麼他能知道「要往哪裡抓」？</h2><p>因為你在示範時，已經在這個畫面中成功做了「移動 + 抓取」。</p>
+<p>模型不需要知道那顆小黃瓜的坐標，它只需要看到：</p>
+<blockquote>
+<p><font color=#aa0016>當畫面裡有這樣的小黃瓜，人類手臂是這樣動的 → 模仿這段 joint 運動軌跡 </font></p>
+</blockquote>
+<p>也就是說：</p>
+<ul>
+<li><p>GR00T 是靠模仿人類如何<strong>「在畫面下」</strong>做出連續控制動作</p>
+</li>
+<li><p>而不是靠計算座標再控制</p>
+</li>
+</ul>
+<hr>
+<h2 id="✅-例子流程（用你現在的機器人架構）"><a href="#✅-例子流程（用你現在的機器人架構）" class="headerlink" title="✅ 例子流程（用你現在的機器人架構）"></a>✅ 例子流程（用你現在的機器人架構）</h2><p>你用 D405 拍攝畫面</p>
+<p>你人用 joystick &#x2F; SpaceMouse 控制機械手臂去抓</p>
+<p>你記錄下：</p>
+<ul>
+<li><p><strong>每幀畫面（image_t)</strong></p>
+</li>
+<li><p><strong>當前 joint state（joint_pos, joint_vel）</strong></p>
+</li>
+<li><p><strong>你做的控制（joint_action）</strong></p>
+</li>
+</ul>
+<h3 id="你收集-100-次這樣的示範："><a href="#你收集-100-次這樣的示範：" class="headerlink" title="你收集 100 次這樣的示範："></a>你收集 100 次這樣的示範：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">畫面1 → 動作1</span><br><span class="line">畫面2 → 動作2</span><br><span class="line">...</span><br><span class="line">畫面100 → 動作100</span><br></pre></td></tr></table></figure>
+<h2 id="模型學會：給我一張畫面-當下機械手臂狀態，我就知道要怎麼移動手臂。"><a href="#模型學會：給我一張畫面-當下機械手臂狀態，我就知道要怎麼移動手臂。" class="headerlink" title="模型學會：給我一張畫面 + 當下機械手臂狀態，我就知道要怎麼移動手臂。"></a>模型學會：給我一張畫面 + 當下機械手臂狀態，我就知道要怎麼移動手臂。</h2><p>✅ 所以回到疑問：「單憑畫面怎麼知道要怎麼動？」</p>
+<p>因為它不是在<strong>「解 XYZ 位置」</strong>，而是在<strong>「模仿整個感知 → 運動序列」</strong>的過程。</p>
+<p>可以把它想成一個「運動記憶模仿體系」：</p>
+<p>看到熟悉的畫面，做出曾經成功過的動作序列。</p>
+<hr>
+<p>📌 總結理解與補充</p>
+<table>
+<thead>
+<tr>
+<th>提問的重點</th>
+<th>回應與補充</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>為什麼 GR00T 不用知道目標座標？</td>
+<td>因為它不是靠 XYZ 控制，是靠過去示範的「感知 → 行動序列」學習控制策略</td>
+</tr>
+<tr>
+<td>它怎麼知道怎麼抓？</td>
+<td>因為你示範過「在這種畫面下應該怎麼抓」，它學會了模仿這種畫面對應的行動</td>
+</tr>
+<tr>
+<td>它如何讓末端去到水果？</td>
+<td>它不是先算末端要到哪，而是讓手臂 joint 一步步像人一樣動過去，最後自然到達目標位置</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="傳統系統中的「採空」回饋方式"><a href="#傳統系統中的「採空」回饋方式" class="headerlink" title="傳統系統中的「採空」回饋方式"></a>傳統系統中的「採空」回饋方式</h2><p>在傳統控制（MoveIt、cuMotion）中，<strong>採空與否通常不在主流程內處理</strong>，但會透過以下方式補足：</p>
+<ol>
+<li><strong>感測器類型回饋</strong>：<ul>
+<li>力&#x2F;扭矩感測器（如 Robotiq gripper 提供夾取力量值）</li>
+<li>吸盤氣壓感測器（判斷是否吸住）</li>
+<li>接觸感測器（touch &#x2F; tactile sensor）</li>
+</ul>
+</li>
+<li><strong>影像後驗驗證</strong>（post-hoc visual verification）：<ul>
+<li>執行完夾取後，再拍攝一次畫面 → 若目標物仍在場上 → 判定失敗</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="✅-那-GR00T-類的模仿學習控制器會「知道自己夾空了」嗎？"><a href="#✅-那-GR00T-類的模仿學習控制器會「知道自己夾空了」嗎？" class="headerlink" title="✅ 那 GR00T 類的模仿學習控制器會「知道自己夾空了」嗎？"></a>✅ 那 GR00T 類的模仿學習控制器會「知道自己夾空了」嗎？</h2><p>這就取決於它是否具備<strong>任務成功&#x2F;失敗的監督標記 + 閉迴路設計</strong>：</p>
+<h3 id="🧠-兩種學習方式："><a href="#🧠-兩種學習方式：" class="headerlink" title="🧠 兩種學習方式："></a>🧠 兩種學習方式：</h3><table>
+<thead>
+<tr>
+<th>控制類型</th>
+<th>能否知道自己採空？</th>
+<th>如何應對</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>純 imitation learning</strong></td>
+<td>❌ 不會自己知道失敗，只會執行曾經學過的動作</td>
+<td>需要人類提供成功範例資料，或加入分類器來判定成功與否</td>
+</tr>
+<tr>
+<td><strong>reinforcement learning (RL) 強化學習</strong></td>
+<td>✅ 可以透過回饋 signal（reward）學會「不要採空」</td>
+<td>但收斂較慢，資料需求更大，可模仿+強化學習混合</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="✅-更實用的方式：加一層-grasp-success-classifier"><a href="#✅-更實用的方式：加一層-grasp-success-classifier" class="headerlink" title="✅ 更實用的方式：加一層 grasp success classifier"></a>✅ 更實用的方式：<strong>加一層 grasp success classifier</strong></h2><p>你可以這樣設計一個「自我判斷採空」機制：</p>
+<h3 id="📦-結合以下資訊："><a href="#📦-結合以下資訊：" class="headerlink" title="📦 結合以下資訊："></a>📦 結合以下資訊：</h3><ol>
+<li><strong>夾爪的狀態資料（開合程度、夾取壓力、夾取時間）</strong></li>
+<li><strong>夾取後的影像</strong>：看物體是否仍在場</li>
+<li><strong>深度資訊變化</strong>：夾取區域的 depth map 有沒有被移除</li>
+</ol>
+<h3 id="🧠-模型學習："><a href="#🧠-模型學習：" class="headerlink" title="🧠 模型學習："></a>🧠 模型學習：</h3><ul>
+<li><p>成功 vs 採空 → 二元分類器</p>
+</li>
+<li><p>可以和 GR00T policy 串接</p>
+<ul>
+<li>若夾空 → 回傳錯誤 → 導入 retry 動作序列（如 regrasp）</li>
+</ul>
+</li>
+</ul>
+<h2 id="✅-你未來可建的架構示意圖："><a href="#✅-你未來可建的架構示意圖：" class="headerlink" title="✅ 你未來可建的架構示意圖："></a>✅ 你未來可建的架構示意圖：</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">D405 影像 + joint_state</span><br><span class="line">    ↓</span><br><span class="line">模仿控制器（GR00T / imitation policy）</span><br><span class="line">    ↓</span><br><span class="line">joint_commands → 控制手臂</span><br><span class="line">    ↓</span><br><span class="line">夾取完成 → grasp success module 啟動</span><br><span class="line">    ↓</span><br><span class="line">    ├─ 成功 → 下一個任務</span><br><span class="line">    └─ 採空 → 啟用 regrasp 動作（或轉向 reinforcement 模塊）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="✅-實務建議"><a href="#✅-實務建議" class="headerlink" title="✅ 實務建議"></a>✅ 實務建議</h2><p>在你實作的階段，建議先採以下設計：</p>
+<ul>
+<li>📹 在每次抓取結束時，自動拍照 → 與前一張比較</li>
+<li>🧠 訓練一個 grasp success 判斷分類器（可用視覺 + gripper 狀態）</li>
+<li>🔁 如果夾空，切換回模仿學習 controller 的 “retry” 模式（也可設計一段手動控制策略）</li>
+</ul>
+<hr>
+<table>
+<thead>
+<tr>
+<th>類型</th>
+<th>傳統端到端整合式無序抓取</th>
+<th>模仿學習（GR00T-style）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>技術堆疊</td>
+<td>YOLO → depth → pose估計（如PCA &#x2F; FoundationPose）→ IK &#x2F; cuMotion &#x2F; MoveIt</td>
+<td>image + joint → train policy network</td>
+</tr>
+<tr>
+<td>是否需要明確座標</td>
+<td>✅ 需要</td>
+<td>❌ 不需要</td>
+</tr>
+<tr>
+<td>對新環境適應性</td>
+<td>一定要重調感知模型</td>
+<td>需訓練相對任務資料</td>
+</tr>
+<tr>
+<td>動作流暢性</td>
+<td>❌ 顆粒感、僵硬、可能跳解</td>
+<td>✅ 高仿真、模仿人類動作</td>
+</tr>
+<tr>
+<td>訓練資料需求</td>
+<td>少，主要靠感知與控制模塊組合</td>
+<td>大量（幾百到數千筆示範）</td>
+</tr>
+<tr>
+<td>適合場景</td>
+<td>多樣品類、場景穩定性低、需要快速部署</td>
+<td>單一作業、任務固定、需求高效率與自然動作</td>
+</tr>
+<tr>
+<td>是否可解釋</td>
+<td>✅（每個模塊可追蹤）</td>
+<td>❌（端到端黑箱）</td>
+</tr>
+<tr>
+<td>對工程整合的要求</td>
+<td>高</td>
+<td>中</td>
+</tr>
+<tr>
+<td>模型泛化能力</td>
+<td>弱（靠多模組組合處理）</td>
+<td>可透過 Prompt、CLIP-style encoder 漸進泛化（尚未完全成熟）</td>
+</tr>
+</tbody></table>
+<h2 id="🧠-結論：cuMotion-vs-GR00T-的本質差異"><a href="#🧠-結論：cuMotion-vs-GR00T-的本質差異" class="headerlink" title="🧠 結論：cuMotion vs GR00T 的本質差異"></a>🧠 結論：cuMotion vs GR00T 的本質差異</h2><table>
+<thead>
+<tr>
+<th>比較維度</th>
+<th>cuMotion</th>
+<th>GR00T</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>控制思想</td>
+<td>優化理論（math-based）</td>
+<td>學習策略（data-driven）</td>
+</tr>
+<tr>
+<td>運作流程</td>
+<td>感知 → pose → 優化控制</td>
+<td>感知 → 直接控制</td>
+</tr>
+<tr>
+<td>適用場景</td>
+<td>已知物件姿態的操作場景</td>
+<td>複雜語境 + 多樣操作場景（如果園）</td>
+</tr>
+<tr>
+<td>部署難度</td>
+<td>中（需 pipeline 串接）</td>
+<td>高（需收集數據+訓練）</td>
+</tr>
+<tr>
+<td>Sim2Real 遷移</td>
+<td>需調整模組參數</td>
+<td>可透過大規模資料提升泛化能力</td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://sjctyjin.github.io/2025/04/15/GR00T-N1%E5%A4%9A%E6%A8%A1%E6%89%8B%E8%87%82%E8%A8%93%E7%B7%B4%E7%9A%84%E7%90%86%E8%A7%A3/" data-id="cm9j89l7o0001mgu26mce4gu7" data-title="GR00T N1" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-Fanuc真實手臂與Rviz仿真" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/02/13/Fanuc%E7%9C%9F%E5%AF%A6%E6%89%8B%E8%87%82%E8%88%87Rviz%E4%BB%BF%E7%9C%9F/" class="article-date">
@@ -147,7 +465,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2025/02/13/Fanuc%E7%9C%9F%E5%AF%A6%E6%89%8B%E8%87%82%E8%88%87Rviz%E4%BB%BF%E7%9C%9F/" data-id="cm72povm60000x0u26aqq1m6b" data-title="Fanuc真實手臂與Rviz仿真" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2025/02/13/Fanuc%E7%9C%9F%E5%AF%A6%E6%89%8B%E8%87%82%E8%88%87Rviz%E4%BB%BF%E7%9C%9F/" data-id="cm9j89l7l0000mgu23n1p6sj6" data-title="Fanuc真實手臂與Rviz仿真" class="article-share-link">Share</a>
       
       
       
@@ -198,7 +516,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2025/02/13/hello-world/" data-id="cm72povmb0003x0u2hogk7bes" data-title="Hello World" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2025/02/13/hello-world/" data-id="cm9j89l7q0005mgu2ard51gtn" data-title="Hello World" class="article-share-link">Share</a>
       
       
       
@@ -254,7 +572,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2024/02/21/%E6%9B%BC%E9%99%80%E7%BE%85%E4%B9%9D%E5%AE%AE%E6%A0%BC%E6%80%9D%E8%80%83%E6%B3%95/" data-id="cm72povmc0006x0u27we14mbz" data-title="曼陀羅九宮格思考法" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2024/02/21/%E6%9B%BC%E9%99%80%E7%BE%85%E4%B9%9D%E5%AE%AE%E6%A0%BC%E6%80%9D%E8%80%83%E6%B3%95/" data-id="cm9j89l7r0006mgu29x12955m" data-title="曼陀羅九宮格思考法" class="article-share-link">Share</a>
       
       
       
@@ -310,7 +628,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2024/02/19/%E5%B0%88%E5%88%A9rodamap/" data-id="cm72povmc0005x0u2ffhq9rok" data-title="專利rodamap" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2024/02/19/%E5%B0%88%E5%88%A9rodamap/" data-id="cm9j89l7r0008mgu27z4vbpk7" data-title="專利rodamap" class="article-share-link">Share</a>
       
       
       
@@ -351,7 +669,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2023/11/03/IIS%E9%83%A8%E5%B1%AC%E6%99%82%E7%99%BC%E7%94%9Fx86%E6%87%89%E7%94%A8%E7%A8%8B%E5%BC%8F%E4%B8%8D%E7%AC%A6%E5%90%8864%E4%BD%8D%E5%85%83%E4%BD%BF%E7%94%A8/" data-id="cm72povm90001x0u2a42o1te3" data-title="IIS部屬時發生x86應用程式不符合64位元使用" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2023/11/03/IIS%E9%83%A8%E5%B1%AC%E6%99%82%E7%99%BC%E7%94%9Fx86%E6%87%89%E7%94%A8%E7%A8%8B%E5%BC%8F%E4%B8%8D%E7%AC%A6%E5%90%8864%E4%BD%8D%E5%85%83%E4%BD%BF%E7%94%A8/" data-id="cm9j89l7q0004mgu2g7ss0fs9" data-title="IIS部屬時發生x86應用程式不符合64位元使用" class="article-share-link">Share</a>
       
       
       
@@ -469,7 +787,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2023/06/28/NX%E5%AE%89%E8%A3%9D%E7%B4%80%E9%8C%84/" data-id="cm72povma0002x0u2gpuf2nll" data-title="NX安裝紀錄" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2023/06/28/NX%E5%AE%89%E8%A3%9D%E7%B4%80%E9%8C%84/" data-id="cm9j89l7p0002mgu28451fr6n" data-title="NX安裝紀錄" class="article-share-link">Share</a>
       
       
       
@@ -537,7 +855,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2022/12/22/%E6%AA%A2%E6%B8%AC%E5%9C%93%E6%98%AF%E5%90%A6%E8%B6%85%E5%87%BA%E5%9F%BA%E6%BA%96%E7%B7%9A%E8%BC%B8%E5%87%BA%E8%A3%9C%E6%AD%A3%E5%80%BC/" data-id="cm72povmd0007x0u23g8ggbqy" data-title="檢測圓是否超出基準線輸出補正值" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2022/12/22/%E6%AA%A2%E6%B8%AC%E5%9C%93%E6%98%AF%E5%90%A6%E8%B6%85%E5%87%BA%E5%9F%BA%E6%BA%96%E7%B7%9A%E8%BC%B8%E5%87%BA%E8%A3%9C%E6%AD%A3%E5%80%BC/" data-id="cm9j89l7r0007mgu2bu6614br" data-title="檢測圓是否超出基準線輸出補正值" class="article-share-link">Share</a>
       
       
       
@@ -643,7 +961,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2022/11/23/Yolov5-doc/" data-id="cm72povmc0004x0u25pxlaa0l" data-title="Yolov5 Setting and Training" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2022/11/23/Yolov5-doc/" data-id="cm9j89l7p0003mgu23n1ohoy0" data-title="Yolov5 Setting and Training" class="article-share-link">Share</a>
       
       
       
@@ -673,7 +991,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">彙整</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">二月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">二月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">二月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">二月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li></ul>
     </div>
   </div>
 
@@ -684,6 +1002,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2025/04/15/GR00T-N1%E5%A4%9A%E6%A8%A1%E6%89%8B%E8%87%82%E8%A8%93%E7%B7%B4%E7%9A%84%E7%90%86%E8%A7%A3/">GR00T N1</a>
+          </li>
         
           <li>
             <a href="/2025/02/13/Fanuc%E7%9C%9F%E5%AF%A6%E6%89%8B%E8%87%82%E8%88%87Rviz%E4%BB%BF%E7%9C%9F/">Fanuc真實手臂與Rviz仿真</a>
@@ -699,10 +1021,6 @@
         
           <li>
             <a href="/2024/02/19/%E5%B0%88%E5%88%A9rodamap/">專利rodamap</a>
-          </li>
-        
-          <li>
-            <a href="/2023/11/03/IIS%E9%83%A8%E5%B1%AC%E6%99%82%E7%99%BC%E7%94%9Fx86%E6%87%89%E7%94%A8%E7%A8%8B%E5%BC%8F%E4%B8%8D%E7%AC%A6%E5%90%8864%E4%BD%8D%E5%85%83%E4%BD%BF%E7%94%A8/">IIS部屬時發生x86應用程式不符合64位元使用</a>
           </li>
         
       </ul>
