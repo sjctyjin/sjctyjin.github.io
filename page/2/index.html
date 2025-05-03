@@ -4,30 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>檢測圓是否超出基準線輸出補正值 | Jim&#39;s Blog</title>
+  <title>Jim&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="一個影像辨識的Case，【切割晶圓研磨墊邊緣】，墊子會被機械手臂吸取抓至一個XY平台，旁邊會有一台切割機切割邊緣。目前需求是要讓放墊子平台旋轉去自動切割邊緣，但墊子放上XY平台時會有歪曲的問題，需透過固定相機做影像辨識，設定影像中其中一個基準線對其切割刀口，當影像中的研磨墊若超過或少於基準線，則計算其超出的距離回寫給XY平台補正。以下為python opencv 執行檢測補正距離的方式內容1. 載">
-<meta property="og:type" content="article">
-<meta property="og:title" content="檢測圓是否超出基準線輸出補正值">
-<meta property="og:url" content="https://sjctyjin.github.io/2022/12/22/%E6%AA%A2%E6%B8%AC%E5%9C%93%E6%98%AF%E5%90%A6%E8%B6%85%E5%87%BA%E5%9F%BA%E6%BA%96%E7%B7%9A%E8%BC%B8%E5%87%BA%E8%A3%9C%E6%AD%A3%E5%80%BC/index.html">
+  <meta name="description" content="技術文件紀錄">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Jim&#39;s Blog">
+<meta property="og:url" content="https://sjctyjin.github.io/page/2/index.html">
 <meta property="og:site_name" content="Jim&#39;s Blog">
-<meta property="og:description" content="一個影像辨識的Case，【切割晶圓研磨墊邊緣】，墊子會被機械手臂吸取抓至一個XY平台，旁邊會有一台切割機切割邊緣。目前需求是要讓放墊子平台旋轉去自動切割邊緣，但墊子放上XY平台時會有歪曲的問題，需透過固定相機做影像辨識，設定影像中其中一個基準線對其切割刀口，當影像中的研磨墊若超過或少於基準線，則計算其超出的距離回寫給XY平台補正。以下為python opencv 執行檢測補正距離的方式內容1. 載">
+<meta property="og:description" content="技術文件紀錄">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/test.jpg?raw=true">
-<meta property="og:image" content="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O1_line.jpg?raw=true">
-<meta property="og:image" content="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O2_gray.jpg?raw=true">
-<meta property="og:image" content="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O3_thresh.jpg?raw=true">
-<meta property="og:image" content="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O4_erosion.jpg?raw=true">
-<meta property="og:image" content="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O4_dilation.jpg?raw=true">
-<meta property="og:image" content="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O5_Canny.jpg?raw=true">
-<meta property="og:image" content="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O6_contours.jpg?raw=true">
-<meta property="og:image" content="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O7_result.jpg?raw=true">
-<meta property="article:published_time" content="2022-12-22T01:58:51.000Z">
-<meta property="article:modified_time" content="2025-02-13T01:59:56.000Z">
 <meta property="article:author" content="Jim Shiu">
 <meta property="article:tag" content="Python,C#">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/test.jpg?raw=true">
   
     <link rel="alternate" href="/atom.xml" title="Jim's Blog" type="application/atom+xml">
   
@@ -88,7 +76,9 @@
 </header>
 
       <div class="outer">
-        <section id="main"><article id="post-檢測圓是否超出基準線輸出補正值" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+        <section id="main">
+  
+    <article id="post-檢測圓是否超出基準線輸出補正值" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2022/12/22/%E6%AA%A2%E6%B8%AC%E5%9C%93%E6%98%AF%E5%90%A6%E8%B6%85%E5%87%BA%E5%9F%BA%E6%BA%96%E7%B7%9A%E8%BC%B8%E5%87%BA%E8%A3%9C%E6%AD%A3%E5%80%BC/" class="article-date">
   <time class="dt-published" datetime="2022-12-22T01:58:51.000Z" itemprop="datePublished">2022-12-22</time>
@@ -101,8 +91,8 @@
       <header class="article-header">
         
   
-    <h1 class="p-name article-title" itemprop="headline name">
-      檢測圓是否超出基準線輸出補正值
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/12/22/%E6%AA%A2%E6%B8%AC%E5%9C%93%E6%98%AF%E5%90%A6%E8%B6%85%E5%87%BA%E5%9F%BA%E6%BA%96%E7%B7%9A%E8%BC%B8%E5%87%BA%E8%A3%9C%E6%AD%A3%E5%80%BC/">檢測圓是否超出基準線輸出補正值</a>
     </h1>
   
 
@@ -151,29 +141,123 @@
     </footer>
   </div>
   
-    
-<nav id="article-nav">
-  
-    <a href="/2023/06/28/NX%E5%AE%89%E8%A3%9D%E7%B4%80%E9%8C%84/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          NX安裝紀錄
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2022/11/23/Yolov5-doc/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Yolov5 Setting and Training</div>
-    </a>
-  
-</nav>
+</article>
 
+
+
+  
+    <article id="post-Yolov5-doc" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/11/23/Yolov5-doc/" class="article-date">
+  <time class="dt-published" datetime="2022-11-23T06:26:54.000Z" itemprop="datePublished">2022-11-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/11/23/Yolov5-doc/">Yolov5 Setting and Training</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="內容"><a href="#內容" class="headerlink" title="內容"></a>內容</h2><h3 id="一、-下載Yolov5-專案"><a href="#一、-下載Yolov5-專案" class="headerlink" title="一、 下載Yolov5 專案"></a><font size=5><a href="#%E4%B8%80%E3%80%81-%E4%B8%8B%E8%BC%89YOLOv5-%E5%B0%88%E6%A1%88">一、 下載Yolov5 專案</a></font></h3><h3 id="二、-安裝依賴套件"><a href="#二、-安裝依賴套件" class="headerlink" title="二、 安裝依賴套件"></a><font size=5><a href="#%E4%BA%8C%E3%80%81-%E5%AE%89%E8%A3%9D%E4%BE%9D%E8%B3%B4%E5%A5%97%E4%BB%B6-1">二、 安裝依賴套件</a></font></h3><h3 id="三、-圖片標註"><a href="#三、-圖片標註" class="headerlink" title="三、 圖片標註"></a><font size=5><a href="#%E4%B8%89%E3%80%81-%E5%9C%96%E7%89%87%E6%A8%99%E8%A8%BB-1">三、 圖片標註</a></font></h3><h3 id="四、-Yolov5模型訓練"><a href="#四、-Yolov5模型訓練" class="headerlink" title="四、 Yolov5模型訓練"></a><font size=5><a href="#%E5%9B%9B%E3%80%81Yolov5%E6%A8%A1%E5%9E%8B%E8%A8%93%E7%B7%B4">四、 Yolov5模型訓練</a></font></h3><h3 id="五、-Yolov5模型調用"><a href="#五、-Yolov5模型調用" class="headerlink" title="五、 Yolov5模型調用"></a><font size=5><a href="#%E4%BA%94%E3%80%81-Yolov5%E6%A8%A1%E5%9E%8B%E8%AA%BF%E7%94%A8-1">五、 Yolov5模型調用</a></font></h3><hr>
+<h2 id="一、-下載YOLOv5-專案"><a href="#一、-下載YOLOv5-專案" class="headerlink" title="一、 下載YOLOv5 專案"></a>一、 下載YOLOv5 專案</h2><h3 id="開啟cmd"><a href="#開啟cmd" class="headerlink" title="開啟cmd"></a>開啟cmd</h3><h3 id="執行git-clone-指令"><a href="#執行git-clone-指令" class="headerlink" title="執行git clone 指令"></a>執行git clone 指令</h3><p><code>cmd</code></p>
+<figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/ultralytics/yolov5</span><br></pre></td></tr></table></figure>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p1.png?raw=true" alt="clone yolov5 專案"></p>
+<hr>
+<h3 id="完成後將在資料夾底下看到yolov5的資料夾。"><a href="#完成後將在資料夾底下看到yolov5的資料夾。" class="headerlink" title="完成後將在資料夾底下看到yolov5的資料夾。"></a>完成後將在資料夾底下看到yolov5的資料夾。</h3><p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p2.png?raw=true" alt="yolov5 專案"></p>
+<hr>
+<h2 id="二、-安裝依賴套件-1"><a href="#二、-安裝依賴套件-1" class="headerlink" title="二、 安裝依賴套件"></a>二、 安裝依賴套件</h2><h3 id="安裝完成後，執行指令cd-yolov5-至資料夾下"><a href="#安裝完成後，執行指令cd-yolov5-至資料夾下" class="headerlink" title="安裝完成後，執行指令cd yolov5 至資料夾下"></a>安裝完成後，執行指令cd yolov5 至資料夾下</h3><h3 id="執行pip安裝依賴套件。"><a href="#執行pip安裝依賴套件。" class="headerlink" title="執行pip安裝依賴套件。"></a>執行pip安裝依賴套件。</h3><h3 id="pip-install-r-requirements-txt"><a href="#pip-install-r-requirements-txt" class="headerlink" title="pip install -r requirements.txt"></a>pip install -r requirements.txt</h3><h3 id="若pytorch-pip安裝無錯誤可跳過以下步驟。"><a href="#若pytorch-pip安裝無錯誤可跳過以下步驟。" class="headerlink" title="若pytorch pip安裝無錯誤可跳過以下步驟。"></a><a href="#%E5%9F%B7%E8%A1%8C%E6%8C%87%E4%BB%A4">若pytorch pip安裝無錯誤可跳過以下步驟。</a></h3><hr>
+<h3 id="注-若pytorch-pip安裝失敗則需手動安裝，若無錯誤可跳過以下步驟。"><a href="#注-若pytorch-pip安裝失敗則需手動安裝，若無錯誤可跳過以下步驟。" class="headerlink" title="注 : 若pytorch pip安裝失敗則需手動安裝，若無錯誤可跳過以下步驟。"></a><font color=#FF0000>注 : 若pytorch pip安裝失敗則需手動安裝，若無錯誤可跳過以下步驟。</font></h3><h3 id="至-Previous-PyTorch-Versions-PyTorch-下載對應自己電腦GPU版本的pytorch"><a href="#至-Previous-PyTorch-Versions-PyTorch-下載對應自己電腦GPU版本的pytorch" class="headerlink" title="至 Previous PyTorch Versions| PyTorch  下載對應自己電腦GPU版本的pytorch"></a>至 <a target="_blank" rel="noopener" href="https://pytorch.org/get-started/previous-versions/">Previous PyTorch Versions| PyTorch</a>  下載對應自己電腦GPU版本的pytorch</h3><h3 id="先在cmd終端下輸入-nvidia-smi-查詢電腦GPU-CUDA-Version資訊。"><a href="#先在cmd終端下輸入-nvidia-smi-查詢電腦GPU-CUDA-Version資訊。" class="headerlink" title="先在cmd終端下輸入 nvidia-smi 查詢電腦GPU CUDA Version資訊。"></a>先在cmd終端下輸入 nvidia-smi 查詢電腦GPU CUDA Version資訊。</h3><p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p3.png?raw=true" alt="CUDA Version"></p>
+<hr>
+<h3 id="以本機電腦為例-CUDA-Version-最高支援為11-7，所以要找支援11-7以下的pytorch版本，從官網下載支援的頁面找到v1-12-1版本，複製下方CUDA-11-6的安裝指令-分為conda與wheel安裝方式-，若使用Anaconda則使用conda安裝，若使用pip安裝則為下方的pip安裝指令。"><a href="#以本機電腦為例-CUDA-Version-最高支援為11-7，所以要找支援11-7以下的pytorch版本，從官網下載支援的頁面找到v1-12-1版本，複製下方CUDA-11-6的安裝指令-分為conda與wheel安裝方式-，若使用Anaconda則使用conda安裝，若使用pip安裝則為下方的pip安裝指令。" class="headerlink" title="以本機電腦為例: CUDA Version 最高支援為11.7，所以要找支援11.7以下的pytorch版本，從官網下載支援的頁面找到v1.12.1版本，複製下方CUDA 11.6的安裝指令(分為conda與wheel安裝方式)，若使用Anaconda則使用conda安裝，若使用pip安裝則為下方的pip安裝指令。"></a>以本機電腦為例: CUDA Version 最高支援為11.7，所以要找支援11.7以下的pytorch版本，從官網下載支援的頁面找到v1.12.1版本，複製下方CUDA 11.6的安裝指令(分為conda與wheel安裝方式)，若使用Anaconda則使用conda安裝，若使用pip安裝則為下方的pip安裝指令。</h3><p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p4.png?raw=true" alt="Conda Install command"></p>
+<hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p5.png?raw=true" alt="PIP Install command"></p>
+<hr>
+<h3 id="注"><a href="#注" class="headerlink" title="注:"></a><font color=#FF0000>注:</font></h3><h3 id="1-若無GPU可安裝CPU-only的安裝指令"><a href="#1-若無GPU可安裝CPU-only的安裝指令" class="headerlink" title="1.若無GPU可安裝CPU only的安裝指令"></a><font color=#FF0000>1.若無GPU可安裝CPU only的安裝指令</font></h3><h3 id="2-torch的版本與torchvision版本是有相對應的，不可安裝錯誤。"><a href="#2-torch的版本與torchvision版本是有相對應的，不可安裝錯誤。" class="headerlink" title="2.torch的版本與torchvision版本是有相對應的，不可安裝錯誤。"></a><font color=#FF0000>2.torch的版本與torchvision版本是有相對應的，不可安裝錯誤。</font></h3><h3 id="3-安裝GPU版本torch前請先將CUDA環境安裝設定完成。"><a href="#3-安裝GPU版本torch前請先將CUDA環境安裝設定完成。" class="headerlink" title="3.安裝GPU版本torch前請先將CUDA環境安裝設定完成。"></a><font color=#FF0000>3.安裝GPU版本torch前請先將CUDA環境安裝設定完成。</font></h3><h3 id="Win10-安裝-CUDA、cuDNN-教學"><a href="#Win10-安裝-CUDA、cuDNN-教學" class="headerlink" title="Win10 安裝 CUDA、cuDNN 教學"></a><a target="_blank" rel="noopener" href="https://medium.com/ching-i/win10-%E5%AE%89%E8%A3%9D-cuda-cudnn-%E6%95%99%E5%AD%B8-c617b3b76deb">Win10 安裝 CUDA、cuDNN 教學</a></h3><hr>
+<h3 id="完成後測試yolov5是否能成功執行"><a href="#完成後測試yolov5是否能成功執行" class="headerlink" title="完成後測試yolov5是否能成功執行"></a>完成後測試yolov5是否能成功執行</h3><h3 id="執行指令"><a href="#執行指令" class="headerlink" title="執行指令"></a>執行指令</h3><h3 id="開啟webcam偵測"><a href="#開啟webcam偵測" class="headerlink" title="開啟webcam偵測"></a>開啟webcam偵測</h3><p><code>cmd</code></p>
+<figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python detect.py --source <span class="number">0</span>  </span><br></pre></td></tr></table></figure>
+<h3 id="偵測圖片"><a href="#偵測圖片" class="headerlink" title="偵測圖片"></a>偵測圖片</h3><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python detect.py --source *.jpg</span><br></pre></td></tr></table></figure>
+<h3 id="偵測影片"><a href="#偵測影片" class="headerlink" title="偵測影片"></a>偵測影片</h3><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python detect.py --source *.mp4</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、-圖片標註-1"><a href="#三、-圖片標註-1" class="headerlink" title="三、 圖片標註"></a>三、 圖片標註</h2><h3 id="下載標註工具-LabelImg"><a href="#下載標註工具-LabelImg" class="headerlink" title="下載標註工具 : LabelImg"></a>下載標註工具 : LabelImg</h3><h3 id="labelimg-v1-8-0"><a href="#labelimg-v1-8-0" class="headerlink" title="labelimg v1.8.0"></a><a target="_blank" rel="noopener" href="https://github.com/heartexlabs/labelImg/releases">labelimg v1.8.0</a></h3><hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p6.png?raw=true" alt="LabelImg github page"></p>
+<h3 id="下載解壓縮完成後開啟labelimg-exe，介面如下"><a href="#下載解壓縮完成後開啟labelimg-exe，介面如下" class="headerlink" title="下載解壓縮完成後開啟labelimg.exe，介面如下"></a>下載解壓縮完成後開啟labelimg.exe，介面如下</h3><p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p7.png?raw=true" alt="LabelImg"></p>
+<hr>
+<h3 id="Labelimg操作方式"><a href="#Labelimg操作方式" class="headerlink" title="Labelimg操作方式"></a>Labelimg操作方式</h3><h3 id="1-開啟待標註的影像資料夾"><a href="#1-開啟待標註的影像資料夾" class="headerlink" title="1.開啟待標註的影像資料夾"></a>1.開啟待標註的影像資料夾</h3><hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p8.png?raw=true" alt="LabelImg"></p>
+<hr>
+<h3 id="開啟成功後，右下角File-List會出現該資料夾內的圖片名稱。"><a href="#開啟成功後，右下角File-List會出現該資料夾內的圖片名稱。" class="headerlink" title="開啟成功後，右下角File List會出現該資料夾內的圖片名稱。"></a>開啟成功後，右下角File List會出現該資料夾內的圖片名稱。</h3><hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p9.png?raw=true" alt="File List"></p>
+<hr>
+<h3 id="2-更改圖片標註後檔案儲存路徑"><a href="#2-更改圖片標註後檔案儲存路徑" class="headerlink" title="2.更改圖片標註後檔案儲存路徑"></a>2.更改圖片標註後檔案儲存路徑</h3><hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p10.png?raw=true" alt="Change Save Path"></p>
+<hr>
+<h3 id="選擇標註後的檔案儲存路徑，標註檔名會對應圖片集的檔案名稱。"><a href="#選擇標註後的檔案儲存路徑，標註檔名會對應圖片集的檔案名稱。" class="headerlink" title="選擇標註後的檔案儲存路徑，標註檔名會對應圖片集的檔案名稱。"></a>選擇標註後的檔案儲存路徑，標註檔名會對應圖片集的檔案名稱。</h3><h3 id="注-若訓練模型為yolov5，其標註檔案格式需更改為yolo，點擊此按鈕即可改變格式。"><a href="#注-若訓練模型為yolov5，其標註檔案格式需更改為yolo，點擊此按鈕即可改變格式。" class="headerlink" title="注: 若訓練模型為yolov5，其標註檔案格式需更改為yolo，點擊此按鈕即可改變格式。"></a>注: 若訓練模型為yolov5，其標註檔案格式需更改為yolo，點擊此按鈕即可改變格式。</h3><hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p11.png?raw=true" alt=" PascalVOC --&gt; yolo "></p>
+<hr>
+<h3 id="3-圖片標註方式"><a href="#3-圖片標註方式" class="headerlink" title="3.圖片標註方式"></a>3.圖片標註方式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">快捷鍵 : </span><br><span class="line">W : 開啟標註</span><br><span class="line">A : 上一張</span><br><span class="line">D : 下一張</span><br><span class="line">Ctrl + S : 儲存</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p12.png?raw=true" alt="Label"></p>
+<hr>
+<h3 id="標註結果"><a href="#標註結果" class="headerlink" title="標註結果:"></a>標註結果:</h3><hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p13.png?raw=true" alt="Label result"></p>
+<hr>
+<h3 id="四、Yolov5模型訓練"><a href="#四、Yolov5模型訓練" class="headerlink" title="四、Yolov5模型訓練"></a>四、Yolov5模型訓練</h3><h3 id="1-訓練資料建立"><a href="#1-訓練資料建立" class="headerlink" title="1.訓練資料建立"></a>1.訓練資料建立</h3><h3 id="將標註完成的圖片資料夾與標註txt檔資料夾共同存放至一個自行建立的資料夾中，如以下例"><a href="#將標註完成的圖片資料夾與標註txt檔資料夾共同存放至一個自行建立的資料夾中，如以下例" class="headerlink" title="將標註完成的圖片資料夾與標註txt檔資料夾共同存放至一個自行建立的資料夾中，如以下例"></a>將標註完成的圖片資料夾與標註txt檔資料夾共同存放至一個自行建立的資料夾中，如以下例</h3><hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p14.png?raw=true" alt="make a dir"></p>
+<hr>
+<h3 id="創建一個名為-cucumber-self-dataset-sep的資料夾"><a href="#創建一個名為-cucumber-self-dataset-sep的資料夾" class="headerlink" title="創建一個名為 cucumber_self_dataset_sep的資料夾"></a>創建一個名為 cucumber_self_dataset_sep的資料夾</h3><h3 id="將圖片放置在images-注-圖片資料夾名稱必須為images"><a href="#將圖片放置在images-注-圖片資料夾名稱必須為images" class="headerlink" title="將圖片放置在images (注:圖片資料夾名稱必須為images) "></a>將圖片放置在images <font color=#FF0000>(注:圖片資料夾名稱必須為images) </font></h3><h3 id="將標註檔案放置在labels-注-圖片資料夾名稱必須為labels"><a href="#將標註檔案放置在labels-注-圖片資料夾名稱必須為labels" class="headerlink" title="將標註檔案放置在labels (注:圖片資料夾名稱必須為labels) "></a>將標註檔案放置在labels <font color=#FF0000>(注:圖片資料夾名稱必須為labels) </font></h3><h3 id="再將圖片集拆分為訓練及與驗證集分別存放，如下"><a href="#再將圖片集拆分為訓練及與驗證集分別存放，如下" class="headerlink" title="再將圖片集拆分為訓練及與驗證集分別存放，如下:"></a>再將圖片集拆分為訓練及與驗證集分別存放，如下:</h3><hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p15.png?raw=true" alt="image dir"></p>
+<hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p16.png?raw=true" alt="label dir"></p>
+<hr>
+<h3 id="完成後將此cucumber-self-dataset-sep資料夾放置到-x2F-yolov5-x2F-data-x2F-images-x2F-路徑下以便執行訓練。"><a href="#完成後將此cucumber-self-dataset-sep資料夾放置到-x2F-yolov5-x2F-data-x2F-images-x2F-路徑下以便執行訓練。" class="headerlink" title="完成後將此cucumber_self_dataset_sep資料夾放置到 &#x2F;yolov5&#x2F;data&#x2F;images&#x2F; 路徑下以便執行訓練。"></a>完成後將此cucumber_self_dataset_sep資料夾放置到 &#x2F;yolov5&#x2F;data&#x2F;images&#x2F; 路徑下以便執行訓練。</h3><h3 id="2-建立訓練-yaml-檔案"><a href="#2-建立訓練-yaml-檔案" class="headerlink" title="2.建立訓練 yaml 檔案"></a>2.建立訓練 yaml 檔案</h3><h3 id="yaml是yolov5訓練時抓取資料集的路徑參數設定檔，"><a href="#yaml是yolov5訓練時抓取資料集的路徑參數設定檔，" class="headerlink" title="yaml是yolov5訓練時抓取資料集的路徑參數設定檔，"></a>yaml是yolov5訓練時抓取資料集的路徑參數設定檔，</h3><h2 id="設定內容如下"><a href="#設定內容如下" class="headerlink" title="設定內容如下:"></a>設定內容如下:</h2><hr>
+<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p17.png?raw=true" alt="label dir"></p>
+<hr>
+<p><code>yaml</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">path : yolov5路徑下存放訓練集的目錄</span><br><span class="line">train : 訓練集資料夾的上層目錄</span><br><span class="line">val : 驗證集資料夾的上層目錄</span><br><span class="line">nc : 標註類別數量</span><br><span class="line">names : 標註類別名稱</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-執行訓練指令"><a href="#3-執行訓練指令" class="headerlink" title="3.執行訓練指令"></a>3.執行訓練指令</h3><h3 id="在yolov5目錄下，執行指令"><a href="#在yolov5目錄下，執行指令" class="headerlink" title="在yolov5目錄下，執行指令"></a>在yolov5目錄下，執行指令</h3><p><code>cmd</code></p>
+<figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">python train.py --img <span class="number">416</span> --batch <span class="number">16</span> --epochs <span class="number">500</span> --data dataset_cucumber_221114.yaml --weights yolov5s.pt</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">--img 設定圖像大小</span><br><span class="line">--batch 設定batch大小 </span><br><span class="line">--epochs 設定epochs大小</span><br><span class="line">--data 設定yaml檔案</span><br><span class="line">--weights 設定yolov5預訓練權重</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="五、-Yolov5模型調用-1"><a href="#五、-Yolov5模型調用-1" class="headerlink" title="五、 Yolov5模型調用"></a>五、 Yolov5模型調用</h2><h3 id="模型訓練完成後，其pt權重檔存放於-x2F-yolov5-x2F-runs-x2F-train-x2F-exp-x2F-weight-x2F"><a href="#模型訓練完成後，其pt權重檔存放於-x2F-yolov5-x2F-runs-x2F-train-x2F-exp-x2F-weight-x2F" class="headerlink" title="模型訓練完成後，其pt權重檔存放於 &#x2F;yolov5&#x2F;runs&#x2F;train&#x2F;exp*&#x2F;weight&#x2F;"></a>模型訓練完成後，其pt權重檔存放於 &#x2F;yolov5&#x2F;runs&#x2F;train&#x2F;exp*&#x2F;weight&#x2F;</h3><h3 id="訓練完成後會自動儲存"><a href="#訓練完成後會自動儲存" class="headerlink" title="訓練完成後會自動儲存"></a>訓練完成後會自動儲存</h3><h3 id="best-pt-訓練過程中最好的結果權重"><a href="#best-pt-訓練過程中最好的結果權重" class="headerlink" title="best.pt 訓練過程中最好的結果權重"></a>best.pt 訓練過程中最好的結果權重</h3><h3 id="last-pt-訓練到最後一次儲存的權重"><a href="#last-pt-訓練到最後一次儲存的權重" class="headerlink" title="last.pt  訓練到最後一次儲存的權重"></a>last.pt  訓練到最後一次儲存的權重</h3><hr>
+<h3 id="調用訓練後權重檔"><a href="#調用訓練後權重檔" class="headerlink" title="調用訓練後權重檔"></a>調用訓練後權重檔</h3><p><code>python</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"></span><br><span class="line">model = torch.hub.load(<span class="string">&#x27;ultralytics/yolov5&#x27;</span>, <span class="string">&#x27;custom&#x27;</span>, </span><br><span class="line">path=<span class="string">&#x27;runs/train/exp/weights/best.pt&#x27;</span>,force_reload=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">cap = cv2.VideoCapture(<span class="number">0</span>)<span class="comment">#開啟網路攝影機</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> cap.isOpened():</span><br><span class="line">    success, frame = cap.read()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> success:</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;Ignoring empty camera frame.&quot;</span>)</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">    frame = cv2.resize(frame,(<span class="number">800</span>,<span class="number">480</span>))</span><br><span class="line">    results = model(frame)</span><br><span class="line">    cv2.imshow(<span class="string">&#x27;YOLO COCO 01&#x27;</span>, np.squeeze(results.render()))</span><br><span class="line">    <span class="keyword">if</span> cv2.waitKey(<span class="number">1</span>) &amp; <span class="number">0xFF</span> == <span class="number">27</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">cap.release()</span><br><span class="line">cv2.destroyAllWindows()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://sjctyjin.github.io/2022/11/23/Yolov5-doc/" data-id="cma7wdna6000adku2dzex8n3v" data-title="Yolov5 Setting and Training" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
   
 </article>
 
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/">&laquo; 上一頁</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
 
 </section>
         

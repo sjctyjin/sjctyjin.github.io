@@ -78,6 +78,145 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-window11執行python-發生cp950的編碼問題" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/05/03/window11%E5%9F%B7%E8%A1%8Cpython-%E7%99%BC%E7%94%9Fcp950%E7%9A%84%E7%B7%A8%E7%A2%BC%E5%95%8F%E9%A1%8C/" class="article-date">
+  <time class="dt-published" datetime="2025-05-03T06:51:56.000Z" itemprop="datePublished">2025-05-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/05/03/window11%E5%9F%B7%E8%A1%8Cpython-%E7%99%BC%E7%94%9Fcp950%E7%9A%84%E7%B7%A8%E7%A2%BC%E5%95%8F%E9%A1%8C/">window11執行python 發生cp950的編碼問題</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>✅ 解決方案：從「系統層級」修改預設編碼為 UTF-8（不需每次程式碼加參數）<br>方式一：變更 Windows 預設編碼為 UTF-8<br>這是最推薦的方式，能永久性解決 Python 和其他程式中出現的 CP950 錯誤。</p>
+<p>🔧 步驟如下：<br>打開「控制台」 → 「時鐘與地區」 → 「區域」</p>
+<p>切到「系統管理」分頁</p>
+<p>點選「變更系統地區設定（Change system locale）」</p>
+<p>✅ 勾選「Beta: 使用 Unicode UTF-8 提供全球語言支援」</p>
+<p>點「確定」後重新啟動系統</p>
+<p>🟡 這樣就能讓 Python 的預設編碼變成 UTF-8，不再使用 CP950，所有無法處理的字元問題都會大幅減少。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://sjctyjin.github.io/2025/05/03/window11%E5%9F%B7%E8%A1%8Cpython-%E7%99%BC%E7%94%9Fcp950%E7%9A%84%E7%B7%A8%E7%A2%BC%E5%95%8F%E9%A1%8C/" data-id="cma7wdna30005dku2cs3ncjxw" data-title="window11執行python 發生cp950的編碼問題" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-ISAAC-SIM-4-2-Window環境下建置Curobo" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/04/29/ISAAC-SIM-4-2-Window%E7%92%B0%E5%A2%83%E4%B8%8B%E5%BB%BA%E7%BD%AECurobo/" class="article-date">
+  <time class="dt-published" datetime="2025-04-29T01:36:24.000Z" itemprop="datePublished">2025-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/04/29/ISAAC-SIM-4-2-Window%E7%92%B0%E5%A2%83%E4%B8%8B%E5%BB%BA%E7%BD%AECurobo/">ISAAC-SIM-4.2 Window環境下建置Curobo</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="1-建構一個python3-10的虛擬環境"><a href="#1-建構一個python3-10的虛擬環境" class="headerlink" title="1. 建構一個python3.10的虛擬環境"></a>1. 建構一個python3.10的虛擬環境</h2><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m venv venv310</span><br></pre></td></tr></table></figure>
+<h2 id="2-確認C-編譯環境是VS2019-MSVC-v142"><a href="#2-確認C-編譯環境是VS2019-MSVC-v142" class="headerlink" title="2.確認C++編譯環境是VS2019 MSVC  v142"></a>2.確認C++編譯環境是VS2019 MSVC  v142</h2><h3 id="開啟Visual-Studio-2022-x2F-2019-installer"><a href="#開啟Visual-Studio-2022-x2F-2019-installer" class="headerlink" title="開啟Visual Studio 2022&#x2F;2019 installer"></a>開啟Visual Studio 2022&#x2F;2019 installer</h3><h3 id="按修改"><a href="#按修改" class="headerlink" title="按修改"></a>按修改</h3><h3 id="右邊安裝詳細資料列表中找到-“使用C-的桌面開發”"><a href="#右邊安裝詳細資料列表中找到-“使用C-的桌面開發”" class="headerlink" title="右邊安裝詳細資料列表中找到 “使用C++的桌面開發”"></a>右邊安裝詳細資料列表中找到 “使用C++的桌面開發”</h3><h3 id="勾選-“MSVC-v142-VS-2019-C-x64-x2F-x86-建置工具-v14-29-”-，如下圖"><a href="#勾選-“MSVC-v142-VS-2019-C-x64-x2F-x86-建置工具-v14-29-”-，如下圖" class="headerlink" title="勾選 “MSVC v142 - VS 2019 C++ x64&#x2F;x86 建置工具(v14.29)” ，如下圖"></a>勾選 “MSVC v142 - VS 2019 C++ x64&#x2F;x86 建置工具(v14.29)” ，如下圖</h3><h3 id="後執行安裝。"><a href="#後執行安裝。" class="headerlink" title="後執行安裝。"></a>後執行安裝。</h3><h3 id="Call-2019的C-編譯環境，下面建置bat檔，啟動後可直接進入VS-2019-C-編譯環境-x2F-python3-10環境"><a href="#Call-2019的C-編譯環境，下面建置bat檔，啟動後可直接進入VS-2019-C-編譯環境-x2F-python3-10環境" class="headerlink" title="Call 2019的C++編譯環境，下面建置bat檔，啟動後可直接進入VS 2019 C++編譯環境&#x2F;python3.10環境"></a>Call 2019的C++編譯環境，下面建置bat檔，啟動後可直接進入VS 2019 C++編譯環境&#x2F;python3.10環境</h3><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">echo</span> off</span><br><span class="line"><span class="comment">REM === Step 1: 載入 Visual Studio v142 編譯器環境 ===</span></span><br><span class="line"><span class="keyword">call</span> &quot;C:\Program Files (x86)\Microsoft Visual Studio\<span class="number">2019</span>\Community\VC\Auxiliary\Build\vcvarsall.bat&quot; x64</span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">REM === Step 2: 設定 CUDA 11.8 環境變數 ===</span></span><br><span class="line"><span class="built_in">set</span> CUDA_HOME=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.<span class="number">8</span></span><br><span class="line"><span class="built_in">set</span> <span class="built_in">PATH</span>=<span class="variable">%CUDA_HOME%</span>\bin;<span class="variable">%PATH%</span></span><br><span class="line"><span class="built_in">echo</span> CUDA_HOME is <span class="built_in">set</span> to: <span class="variable">%CUDA_HOME%</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">REM === Step 3: 告訴 pip 不要自己亂開VC環境</span></span><br><span class="line"><span class="built_in">set</span> DISTUTILS_USE_SDK=<span class="number">1</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">REM === Step 4: 啟動 Python 虛擬環境 venv310 ===</span></span><br><span class="line"><span class="keyword">call</span> C:\Users\User\Downloads\isaac-sim-<span class="number">4</span>.<span class="number">2</span>\venv310\Scripts\activate.bat</span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">REM === Step 5: 顯示提示</span></span><br><span class="line"><span class="built_in">echo</span>.</span><br><span class="line"><span class="built_in">echo</span> ✅ 環境設定完成！你可以開始編譯了！</span><br><span class="line"><span class="built_in">cmd</span> /k</span><br></pre></td></tr></table></figure>
+<h2 id="2-在此C-編譯環境下啟動python3-10環境"><a href="#2-在此C-編譯環境下啟動python3-10環境" class="headerlink" title="2. 在此C++編譯環境下啟動python3.10環境"></a>2. 在此C++編譯環境下啟動python3.10環境</h2><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">venv310\scripts\activate</span><br><span class="line"># 安裝依賴</span><br><span class="line">python -m pip install tomli wheel ninja</span><br><span class="line"></span><br><span class="line">pip install isaacsim==<span class="number">4</span>.<span class="number">2</span>.<span class="number">0</span>.<span class="number">2</span> --extra-index-url https://pypi.nvidia.com</span><br><span class="line"></span><br><span class="line">pip install isaacsim-extscache-physics==<span class="number">4</span>.<span class="number">2</span>.<span class="number">0</span>.<span class="number">2</span> isaacsim-extscache-kit==<span class="number">4</span>.<span class="number">2</span>.<span class="number">0</span>.<span class="number">2</span> isaacsim-extscache-kit-sdk==<span class="number">4</span>.<span class="number">2</span>.<span class="number">0</span>.<span class="number">2</span> --extra-index-url https://pypi.nvidia.com</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="3-安裝CUDA-11-8"><a href="#3-安裝CUDA-11-8" class="headerlink" title="3. 安裝CUDA 11.8"></a>3. 安裝CUDA 11.8</h2><p><a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-11-8-0-download-archive?target_os=Windows&amp;target_arch=x86_64&amp;target_version=11&amp;target_type=exe_local">https://developer.nvidia.com/cuda-11-8-0-download-archive?target_os=Windows&amp;target_arch=x86_64&amp;target_version=11&amp;target_type=exe_local</a></p>
+<h3 id="安裝cudnn"><a href="#安裝cudnn" class="headerlink" title="安裝cudnn"></a>安裝cudnn</h3><p><a target="_blank" rel="noopener" href="https://developer.nvidia.com/rdp/cudnn-archive">https://developer.nvidia.com/rdp/cudnn-archive</a></p>
+<h2 id="4-在虛擬環境下設定CUDA-HOME-要先完成第三步"><a href="#4-在虛擬環境下設定CUDA-HOME-要先完成第三步" class="headerlink" title="4.在虛擬環境下設定CUDA_HOME(要先完成第三步)"></a>4.在虛擬環境下設定CUDA_HOME(要先完成第三步)</h2><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$env:CUDA_HOME=&quot;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.<span class="number">8</span>&quot;</span><br><span class="line">$env:<span class="built_in">PATH</span>=&quot;$env:CUDA_HOME\bin;$env:<span class="built_in">PATH</span>&quot;</span><br><span class="line"><span class="built_in">echo</span> $env:CUDA_HOME</span><br></pre></td></tr></table></figure>
+<h3 id="5-安裝pytorch-2-2版本"><a href="#5-安裝pytorch-2-2版本" class="headerlink" title="5.安裝pytorch 2.2版本"></a>5.安裝pytorch 2.2版本</h3><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># CUDA <span class="number">11</span>.<span class="number">8</span></span><br><span class="line">pip install torch==<span class="number">2</span>.<span class="number">2</span>.<span class="number">0</span> torchvision==<span class="number">0</span>.<span class="number">17</span>.<span class="number">0</span> torchaudio==<span class="number">2</span>.<span class="number">2</span>.<span class="number">0</span> --index-url https://download.pytorch.org/whl/cu118</span><br></pre></td></tr></table></figure>
+<h2 id="6-執行curobo安裝"><a href="#6-執行curobo安裝" class="headerlink" title="6. 執行curobo安裝"></a>6. 執行curobo安裝</h2><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/NVlabs/curobo.git</span><br><span class="line"><span class="built_in">cd</span> curobo</span><br><span class="line">python -m pip install -e .[isaacsim] --no-build-isolation</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://sjctyjin.github.io/2025/04/29/ISAAC-SIM-4-2-Window%E7%92%B0%E5%A2%83%E4%B8%8B%E5%BB%BA%E7%BD%AECurobo/" data-id="cma7wdna40006dku26eywd8h8" data-title="ISAAC-SIM-4.2 Window環境下建置Curobo" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-開發日誌查看器部署與建置指南" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/04/24/%E9%96%8B%E7%99%BC%E6%97%A5%E8%AA%8C%E6%9F%A5%E7%9C%8B%E5%99%A8%E9%83%A8%E7%BD%B2%E8%88%87%E5%BB%BA%E7%BD%AE%E6%8C%87%E5%8D%97/" class="article-date">
+  <time class="dt-published" datetime="2025-04-24T02:12:13.000Z" itemprop="datePublished">2025-04-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/04/24/%E9%96%8B%E7%99%BC%E6%97%A5%E8%AA%8C%E6%9F%A5%E7%9C%8B%E5%99%A8%E9%83%A8%E7%BD%B2%E8%88%87%E5%BB%BA%E7%BD%AE%E6%8C%87%E5%8D%97/">開發日誌查看器部署與建置指南</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://sjctyjin.github.io/2025/04/24/%E9%96%8B%E7%99%BC%E6%97%A5%E8%AA%8C%E6%9F%A5%E7%9C%8B%E5%99%A8%E9%83%A8%E7%BD%B2%E8%88%87%E5%BB%BA%E7%BD%AE%E6%8C%87%E5%8D%97/" data-id="cma7wdna50009dku2g3fgdp32" data-title="開發日誌查看器部署與建置指南" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-GR00T-N1多模手臂訓練的理解" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/04/15/GR00T-N1%E5%A4%9A%E6%A8%A1%E6%89%8B%E8%87%82%E8%A8%93%E7%B7%B4%E7%9A%84%E7%90%86%E8%A7%A3/" class="article-date">
@@ -384,7 +523,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2025/04/15/GR00T-N1%E5%A4%9A%E6%A8%A1%E6%89%8B%E8%87%82%E8%A8%93%E7%B7%B4%E7%9A%84%E7%90%86%E8%A7%A3/" data-id="cm9j89l7o0001mgu26mce4gu7" data-title="GR00T N1" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2025/04/15/GR00T-N1%E5%A4%9A%E6%A8%A1%E6%89%8B%E8%87%82%E8%A8%93%E7%B7%B4%E7%9A%84%E7%90%86%E8%A7%A3/" data-id="cma7wdna00001dku2fzjv2s4c" data-title="GR00T N1" class="article-share-link">Share</a>
       
       
       
@@ -465,7 +604,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2025/02/13/Fanuc%E7%9C%9F%E5%AF%A6%E6%89%8B%E8%87%82%E8%88%87Rviz%E4%BB%BF%E7%9C%9F/" data-id="cm9j89l7l0000mgu23n1p6sj6" data-title="Fanuc真實手臂與Rviz仿真" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2025/02/13/Fanuc%E7%9C%9F%E5%AF%A6%E6%89%8B%E8%87%82%E8%88%87Rviz%E4%BB%BF%E7%9C%9F/" data-id="cma7wdn9w0000dku211hnhwow" data-title="Fanuc真實手臂與Rviz仿真" class="article-share-link">Share</a>
       
       
       
@@ -516,7 +655,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2025/02/13/hello-world/" data-id="cm9j89l7q0005mgu2ard51gtn" data-title="Hello World" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2025/02/13/hello-world/" data-id="cma7wdna30004dku2f1976di1" data-title="Hello World" class="article-share-link">Share</a>
       
       
       
@@ -572,7 +711,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2024/02/21/%E6%9B%BC%E9%99%80%E7%BE%85%E4%B9%9D%E5%AE%AE%E6%A0%BC%E6%80%9D%E8%80%83%E6%B3%95/" data-id="cm9j89l7r0006mgu29x12955m" data-title="曼陀羅九宮格思考法" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2024/02/21/%E6%9B%BC%E9%99%80%E7%BE%85%E4%B9%9D%E5%AE%AE%E6%A0%BC%E6%80%9D%E8%80%83%E6%B3%95/" data-id="cma7wdna6000bdku21q0l2nmz" data-title="曼陀羅九宮格思考法" class="article-share-link">Share</a>
       
       
       
@@ -628,7 +767,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2024/02/19/%E5%B0%88%E5%88%A9rodamap/" data-id="cm9j89l7r0008mgu27z4vbpk7" data-title="專利rodamap" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2024/02/19/%E5%B0%88%E5%88%A9rodamap/" data-id="cma7wdna50008dku2f3n95cs6" data-title="專利rodamap" class="article-share-link">Share</a>
       
       
       
@@ -669,7 +808,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2023/11/03/IIS%E9%83%A8%E5%B1%AC%E6%99%82%E7%99%BC%E7%94%9Fx86%E6%87%89%E7%94%A8%E7%A8%8B%E5%BC%8F%E4%B8%8D%E7%AC%A6%E5%90%8864%E4%BD%8D%E5%85%83%E4%BD%BF%E7%94%A8/" data-id="cm9j89l7q0004mgu2g7ss0fs9" data-title="IIS部屬時發生x86應用程式不符合64位元使用" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2023/11/03/IIS%E9%83%A8%E5%B1%AC%E6%99%82%E7%99%BC%E7%94%9Fx86%E6%87%89%E7%94%A8%E7%A8%8B%E5%BC%8F%E4%B8%8D%E7%AC%A6%E5%90%8864%E4%BD%8D%E5%85%83%E4%BD%BF%E7%94%A8/" data-id="cma7wdna10002dku27ezohu1v" data-title="IIS部屬時發生x86應用程式不符合64位元使用" class="article-share-link">Share</a>
       
       
       
@@ -787,181 +926,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2023/06/28/NX%E5%AE%89%E8%A3%9D%E7%B4%80%E9%8C%84/" data-id="cm9j89l7p0002mgu28451fr6n" data-title="NX安裝紀錄" class="article-share-link">Share</a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-檢測圓是否超出基準線輸出補正值" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2022/12/22/%E6%AA%A2%E6%B8%AC%E5%9C%93%E6%98%AF%E5%90%A6%E8%B6%85%E5%87%BA%E5%9F%BA%E6%BA%96%E7%B7%9A%E8%BC%B8%E5%87%BA%E8%A3%9C%E6%AD%A3%E5%80%BC/" class="article-date">
-  <time class="dt-published" datetime="2022-12-22T01:58:51.000Z" itemprop="datePublished">2022-12-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2022/12/22/%E6%AA%A2%E6%B8%AC%E5%9C%93%E6%98%AF%E5%90%A6%E8%B6%85%E5%87%BA%E5%9F%BA%E6%BA%96%E7%B7%9A%E8%BC%B8%E5%87%BA%E8%A3%9C%E6%AD%A3%E5%80%BC/">檢測圓是否超出基準線輸出補正值</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="一個影像辨識的Case，【切割晶圓研磨墊邊緣】，墊子會被機械手臂吸取抓至一個XY平台，旁邊會有一台切割機切割邊緣。"><a href="#一個影像辨識的Case，【切割晶圓研磨墊邊緣】，墊子會被機械手臂吸取抓至一個XY平台，旁邊會有一台切割機切割邊緣。" class="headerlink" title="一個影像辨識的Case，【切割晶圓研磨墊邊緣】，墊子會被機械手臂吸取抓至一個XY平台，旁邊會有一台切割機切割邊緣。"></a>一個影像辨識的Case，【<font color=#FF0000>切割晶圓研磨墊邊緣</font>】，墊子會被機械手臂吸取抓至一個XY平台，旁邊會有一台切割機切割邊緣。</h2><h2 id="目前需求是要讓放墊子平台旋轉去自動切割邊緣，但墊子放上XY平台時會有歪曲的問題，需透過固定相機做影像辨識，"><a href="#目前需求是要讓放墊子平台旋轉去自動切割邊緣，但墊子放上XY平台時會有歪曲的問題，需透過固定相機做影像辨識，" class="headerlink" title="目前需求是要讓放墊子平台旋轉去自動切割邊緣，但墊子放上XY平台時會有歪曲的問題，需透過固定相機做影像辨識，"></a>目前需求是要讓放墊子平台旋轉去自動切割邊緣，但墊子放上XY平台時會有歪曲的問題，需透過固定相機做影像辨識，</h2><h2 id="設定影像中其中一個基準線對其切割刀口，當影像中的研磨墊若超過或少於基準線，則計算其超出的距離回寫給XY平台補正。"><a href="#設定影像中其中一個基準線對其切割刀口，當影像中的研磨墊若超過或少於基準線，則計算其超出的距離回寫給XY平台補正。" class="headerlink" title="設定影像中其中一個基準線對其切割刀口，當影像中的研磨墊若超過或少於基準線，則計算其超出的距離回寫給XY平台補正。"></a>設定影像中其中一個基準線對其切割刀口，當影像中的研磨墊若超過或少於基準線，則計算其超出的距離回寫給XY平台補正。</h2><h2 id="以下為python-opencv-執行檢測補正距離的方式"><a href="#以下為python-opencv-執行檢測補正距離的方式" class="headerlink" title="以下為python opencv 執行檢測補正距離的方式"></a>以下為python opencv 執行檢測補正距離的方式</h2><h2 id="內容"><a href="#內容" class="headerlink" title="內容"></a>內容</h2><h3 id="1-載入影像"><a href="#1-載入影像" class="headerlink" title="1. 載入影像"></a><font size=5><a href="#1-%E8%BC%89%E5%85%A5%E5%BD%B1%E5%83%8F-1">1. 載入影像</a></font></h3><h3 id="2-將整張研磨墊分割為切割攝影機視角，做灰階二值化"><a href="#2-將整張研磨墊分割為切割攝影機視角，做灰階二值化" class="headerlink" title="2. 將整張研磨墊分割為切割攝影機視角，做灰階二值化"></a><font size=5><a href="#2-%E5%B0%87%E6%95%B4%E5%BC%B5%E7%A0%94%E7%A3%A8%E5%A2%8A%E5%88%86%E5%89%B2%E7%82%BA%E5%88%87%E5%89%B2%E6%94%9D%E5%BD%B1%E6%A9%9F%E8%A6%96%E8%A7%92%EF%BC%8C%E5%81%9A%E7%81%B0%E9%9A%8E%E4%BA%8C%E5%80%BC%E5%8C%96-1">2. 將整張研磨墊分割為切割攝影機視角，做灰階二值化</a></font></h3><h3 id="3-設定kernel大小，先侵蝕後膨脹，最後使用Canny做邊緣檢測"><a href="#3-設定kernel大小，先侵蝕後膨脹，最後使用Canny做邊緣檢測" class="headerlink" title="3. 設定kernel大小，先侵蝕後膨脹，最後使用Canny做邊緣檢測"></a><font size=5><a href="#3-%E8%A8%AD%E5%AE%9Akernel%E5%A4%A7%E5%B0%8F%EF%BC%8C%E5%85%88%E4%BE%B5%E8%9D%95%E5%BE%8C%E8%86%A8%E8%84%B9%EF%BC%8C%E6%9C%80%E5%BE%8C%E4%BD%BF%E7%94%A8Canny%E5%81%9A%E9%82%8A%E7%B7%A3%E6%AA%A2%E6%B8%AC-1">3. 設定kernel大小，先侵蝕後膨脹，最後使用Canny做邊緣檢測</a></font></h3><h3 id="4-findContours-對邊緣檢測結果影像imgray尋找輪廓"><a href="#4-findContours-對邊緣檢測結果影像imgray尋找輪廓" class="headerlink" title="4. findContours()對邊緣檢測結果影像imgray尋找輪廓"></a><font size=5><a href="#4-findContours-%E5%B0%8D%E9%82%8A%E7%B7%A3%E6%AA%A2%E6%B8%AC%E7%B5%90%E6%9E%9C%E5%BD%B1%E5%83%8Fimgray%E5%B0%8B%E6%89%BE%E8%BC%AA%E5%BB%93-1">4. findContours()對邊緣檢測結果影像imgray尋找輪廓</a></font></h3><h3 id="5-以檢測線的x值為基準，也就是-u-v-的u值，取出圓弧頂點到切割線的距離公式"><a href="#5-以檢測線的x值為基準，也就是-u-v-的u值，取出圓弧頂點到切割線的距離公式" class="headerlink" title="5. 以檢測線的x值為基準，也就是(u,v)的u值，取出圓弧頂點到切割線的距離公式 "></a><font size=5><a href="#5-%E4%BB%A5%E6%AA%A2%E6%B8%AC%E7%B7%9A%E7%9A%84x%E5%80%BC%E7%82%BA%E5%9F%BA%E6%BA%96%EF%BC%8C%E4%B9%9F%E5%B0%B1%E6%98%AF-u-v-%E7%9A%84u%E5%80%BC%EF%BC%8C%E5%8F%96%E5%87%BA%E5%9C%93%E5%BC%A7%E9%A0%82%E9%BB%9E%E5%88%B0%E5%88%87%E5%89%B2%E7%B7%9A%E7%9A%84%E8%B7%9D%E9%9B%A2%E5%85%AC%E5%BC%8F-check-cut-line-w-x-check-cut-line">5. 以檢測線的x值為基準，也就是(u,v)的u值，取出圓弧頂點到切割線的距離公式 </a></font></h3><hr>
-<h3 id="晶圓切割墊影像"><a href="#晶圓切割墊影像" class="headerlink" title="晶圓切割墊影像"></a>晶圓切割墊影像</h3><p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/test.jpg?raw=true" alt="晶圓切割墊"></p>
-<h3 id="Resize影像"><a href="#Resize影像" class="headerlink" title="Resize影像"></a>Resize影像</h3><p><code>python</code></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">thumb</span>(<span class="params">img,i</span>):</span><br><span class="line">    h,w = img.shape[:<span class="number">2</span>]</span><br><span class="line">    rate = w/h</span><br><span class="line">    <span class="keyword">if</span> w&gt;h:</span><br><span class="line">        width = i</span><br><span class="line">        height = <span class="built_in">int</span>(width/rate)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        height= i</span><br><span class="line">        width = <span class="built_in">int</span>(height * rate)</span><br><span class="line"></span><br><span class="line">    img = cv2.resize(img,(width,height),cv2.INTER_LINEAR)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> img</span><br></pre></td></tr></table></figure>
-<h2 id="1-載入影像-1"><a href="#1-載入影像-1" class="headerlink" title="1. 載入影像"></a>1. 載入影像</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">img = cv2.imread(<span class="string">&#x27;test.jpg&#x27;</span>)</span><br><span class="line"></span><br><span class="line">h,w = img.shape[<span class="number">0</span>:<span class="number">2</span>]                                <span class="comment"># 取影像長寬</span></span><br><span class="line">cv2.line(img, (<span class="number">1040</span>, <span class="number">0</span>), (<span class="number">1040</span>, h), (<span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>), <span class="number">2</span>) <span class="comment"># 畫出邊緣線以供半圓弧在邊緣檢測時獲得面積 </span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O1_line.jpg?raw=true" alt="畫邊緣線"></p>
-<hr>
-<h2 id="2-將整張研磨墊分割為切割攝影機視角，做灰階二值化-1"><a href="#2-將整張研磨墊分割為切割攝影機視角，做灰階二值化-1" class="headerlink" title="2. 將整張研磨墊分割為切割攝影機視角，做灰階二值化"></a>2. 將整張研磨墊分割為切割攝影機視角，做灰階二值化</h2><h3 id="注-若使用實際鏡頭拍攝，若做Resize需考慮比例問題，否則像素值無法乘以像素大小直接轉換mm"><a href="#注-若使用實際鏡頭拍攝，若做Resize需考慮比例問題，否則像素值無法乘以像素大小直接轉換mm" class="headerlink" title="注: 若使用實際鏡頭拍攝，若做Resize需考慮比例問題，否則像素值無法乘以像素大小直接轉換mm"></a><font color=#FF0000>注: 若使用實際鏡頭拍攝，若做Resize需考慮比例問題，否則像素值無法乘以像素大小直接轉換mm</font></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">img = img[<span class="number">0</span>:<span class="number">1040</span>,<span class="number">1000</span>:<span class="number">1440</span>]                      <span class="comment">#分割為攝影機視角</span></span><br><span class="line"></span><br><span class="line">img = thumb(img,<span class="number">1000</span>)                            <span class="comment">#Resize影像</span></span><br><span class="line"></span><br><span class="line">imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)   <span class="comment">#RGB影像轉灰階</span></span><br><span class="line"></span><br><span class="line">ret, thresh = cv2.threshold(imgray, <span class="number">150</span>, <span class="number">255</span>, <span class="number">0</span>) <span class="comment">#二值化影像</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O2_gray.jpg?raw=true" alt="灰階圖"><br><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O3_thresh.jpg?raw=true" alt="二值化"></p>
-<h2 id="3-設定kernel大小，先侵蝕後膨脹，最後使用Canny做邊緣檢測-1"><a href="#3-設定kernel大小，先侵蝕後膨脹，最後使用Canny做邊緣檢測-1" class="headerlink" title="3. 設定kernel大小，先侵蝕後膨脹，最後使用Canny做邊緣檢測"></a>3. 設定kernel大小，先侵蝕後膨脹，最後使用Canny做邊緣檢測</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">kernel = np.ones((<span class="number">3</span>,<span class="number">3</span>),np.uint8)                    <span class="comment">#設定kernel大小</span></span><br><span class="line"></span><br><span class="line">erosion = cv2.erode(thresh,kernel,iterations=<span class="number">1</span>)     <span class="comment">#影像侵蝕</span></span><br><span class="line"></span><br><span class="line">dilation = cv2.dilate(erosion,kernel,iterations=<span class="number">1</span>)  <span class="comment">#影像膨脹</span></span><br><span class="line"></span><br><span class="line">imgray=cv2.Canny(erosion,<span class="number">100</span>,<span class="number">200</span>)                   <span class="comment">#邊緣檢測</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th>影像侵蝕</th>
-<th>影像膨脹</th>
-<th>邊緣檢測</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><img decoding="async" src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O4_erosion.jpg?raw=true" width="50%"></td>
-<td><img decoding="async" src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O4_dilation.jpg?raw=true" width="50%"></td>
-<td><img decoding="async" src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O5_Canny.jpg?raw=true" width="50%"></td>
-</tr>
-</tbody></table>
-<h2 id="4-findContours-對邊緣檢測結果影像imgray尋找輪廓-1"><a href="#4-findContours-對邊緣檢測結果影像imgray尋找輪廓-1" class="headerlink" title="4. findContours()對邊緣檢測結果影像imgray尋找輪廓"></a>4. findContours()對邊緣檢測結果影像imgray尋找輪廓</h2><h3 id="查找出的contours以list儲存-使用for-cnt-in-contours-取得個別輪廓值"><a href="#查找出的contours以list儲存-使用for-cnt-in-contours-取得個別輪廓值" class="headerlink" title="查找出的contours以list儲存 使用for cnt in contours: 取得個別輪廓值"></a>查找出的contours以list儲存 使用for cnt in contours: 取得個別輪廓值</h3><h3 id="area-x3D-cv2-contourArea-cnt-取輪廓值的面積大小"><a href="#area-x3D-cv2-contourArea-cnt-取輪廓值的面積大小" class="headerlink" title="area &#x3D; cv2.contourArea(cnt)取輪廓值的面積大小"></a>area &#x3D; cv2.contourArea(cnt)取輪廓值的面積大小</h3><h3 id="設定area面積大小值取最大面積出來-cv2-boundingRect-cnt-畫外接圓"><a href="#設定area面積大小值取最大面積出來-cv2-boundingRect-cnt-畫外接圓" class="headerlink" title="設定area面積大小值取最大面積出來 cv2.boundingRect(cnt) 畫外接圓"></a>設定area面積大小值取最大面積出來 cv2.boundingRect(cnt) 畫外接圓</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">contours, hierarchy = cv2.findContours(imgray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">len</span>(contours))  <span class="comment"># 結果應該為 1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> cnt <span class="keyword">in</span> contours:</span><br><span class="line">    area = cv2.contourArea(cnt) </span><br><span class="line">    <span class="keyword">if</span> area &gt; <span class="number">5000</span>:</span><br><span class="line">        <span class="comment"># cv2.drawContours(img, [cnt], 0, (0, 0, 255), 2) #畫出物體輪廓</span></span><br><span class="line">        x, y, w, h = cv2.boundingRect(cnt)  <span class="comment"># 外接矩形</span></span><br><span class="line">        cv2.rectangle(img, (x, y), (x + w, y + h), (<span class="number">0</span>, <span class="number">255</span>, <span class="number">0</span>), <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># rect = cv2.minAreaRect(cnt)  # 最小外接矩形</span></span><br><span class="line">        <span class="comment"># box = np.int0(cv2.boxPoints(rect))  # 矩形的四个角點取整數</span></span><br><span class="line">        <span class="comment"># cv2.drawContours(img, [box], 0, (255, 0, 0), 2)</span></span><br><span class="line"><span class="built_in">print</span>(x, y, w, h ) <span class="comment">#找出半圓的 x,y,w,h 值，x,y為左上角座標，w,h為該輪廓的長寬</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O6_contours.jpg?raw=true" alt="畫出物體輪廓"></p>
-<h2 id="5-以檢測線的x值為基準，也就是-u-v-的u值，取出圓弧頂點到切割線的距離公式-check-cut-line-w-x-check-cut-line"><a href="#5-以檢測線的x值為基準，也就是-u-v-的u值，取出圓弧頂點到切割線的距離公式-check-cut-line-w-x-check-cut-line" class="headerlink" title="5. 以檢測線的x值為基準，也就是(u,v)的u值，取出圓弧頂點到切割線的距離公式 check_cut_line+(w+x-check_cut_line)"></a>5. 以檢測線的x值為基準，也就是(u,v)的u值，取出圓弧頂點到切割線的距離公式 check_cut_line+(w+x-check_cut_line)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">check_cut_line = <span class="number">250</span>   <span class="comment">#基準線在影像中的位置 u值</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#畫出切割機的基準線</span></span><br><span class="line">cv2.line(img, (check_cut_line, <span class="number">0</span>), (check_cut_line, <span class="number">1000</span>), (<span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>), <span class="number">2</span>) </span><br><span class="line"></span><br><span class="line"><span class="comment">#畫出圓弧頂點到基準線的線</span></span><br><span class="line">cv2.line(img, (check_cut_line, <span class="built_in">int</span>((y+h+y)/<span class="number">2</span>)), (check_cut_line+(w+x-check_cut_line), <span class="built_in">int</span>((y+h+y)/<span class="number">2</span>)), (<span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>),<span class="number">1</span>)</span><br><span class="line">result = <span class="string">&quot;&#123;:.2f&#125;mm&quot;</span>.<span class="built_in">format</span>(<span class="built_in">round</span>(w+x-check_cut_line)*<span class="number">0.03</span>,<span class="number">2</span>) <span class="comment">#取小數點後兩位</span></span><br><span class="line">cv2.putText(img, result, (check_cut_line+(w+x-check_cut_line)+<span class="number">50</span>, <span class="built_in">int</span>((y+h+y)/<span class="number">2</span>)), cv2.FONT_HERSHEY_SIMPLEX,</span><br><span class="line"><span class="number">1</span>, (<span class="number">200</span>, <span class="number">23</span>, <span class="number">0</span>), <span class="number">2</span>, cv2.LINE_AA)<span class="comment">#將長度畫上圖片</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#畫出圓弧頂點到基準線的像素轉為實際長度(實際長度以像素大小3um做例子)</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;(w+x-check_cut_line)*<span class="number">0.03</span>&#125;</span>mm&quot;</span>)</span><br><span class="line"><span class="comment">#秀出圖片結果</span></span><br><span class="line">cv2.imshow(<span class="string">&#x27;show&#x27;</span>,img)</span><br><span class="line"></span><br><span class="line">cv2.imshow(<span class="string">&#x27;sho2w&#x27;</span>,imgray)</span><br><span class="line"></span><br><span class="line">cv2.waitKey()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/check_cut_line/O7_result.jpg?raw=true" alt="最終計算結果"></p>
-<h2 id="完整程式碼"><a href="#完整程式碼" class="headerlink" title="完整程式碼"></a>完整程式碼</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">thumb</span>(<span class="params">img,i</span>):</span><br><span class="line">    h,w = img.shape[:<span class="number">2</span>]</span><br><span class="line">    rate = w/h</span><br><span class="line">    <span class="keyword">if</span> w&gt;h:</span><br><span class="line">        width = i</span><br><span class="line">        height = <span class="built_in">int</span>(width/rate)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        height= i</span><br><span class="line">        width = <span class="built_in">int</span>(height * rate)</span><br><span class="line"></span><br><span class="line">    img = cv2.resize(img,(width,height),cv2.INTER_LINEAR)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> img</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">img = cv2.imread(<span class="string">&#x27;test.jpg&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cut_fn</span>(<span class="params">img,i</span>):</span><br><span class="line">    h,w = img.shape[<span class="number">0</span>:<span class="number">2</span>]</span><br><span class="line">    cv2.line(img, (<span class="number">1040</span>, <span class="number">0</span>), (<span class="number">1040</span>, h), (<span class="number">255</span>, <span class="number">123</span>, <span class="number">123</span>), <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">    cv2.imwrite(<span class="string">&#x27;O1_line.jpg&#x27;</span>, img)</span><br><span class="line">    <span class="comment">#</span></span><br><span class="line"></span><br><span class="line">    img = img[<span class="number">0</span>:<span class="number">1040</span>,i:<span class="number">1440</span>] <span class="comment">#負值</span></span><br><span class="line">    <span class="comment"># img = img[0:1040,900:1440] #正值</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># img = thumb(img,1000)</span></span><br><span class="line"></span><br><span class="line">    imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)</span><br><span class="line">    cv2.imwrite(<span class="string">&#x27;O2_gray.jpg&#x27;</span>, imgray)<span class="comment">#灰階</span></span><br><span class="line">    ret, thresh = cv2.threshold(imgray, <span class="number">150</span>, <span class="number">255</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    cv2.imwrite(<span class="string">&#x27;O3_thresh.jpg&#x27;</span>, thresh)<span class="comment">#二值化</span></span><br><span class="line">    <span class="comment"># print(thresh)</span></span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;&quot;&quot;型變-&gt; 取Canny影像邊緣&quot;&quot;&quot;</span></span><br><span class="line">    kernel = np.ones((<span class="number">3</span>,<span class="number">3</span>),np.uint8)</span><br><span class="line">    erosion = cv2.erode(thresh,kernel,iterations=<span class="number">1</span>)</span><br><span class="line">    cv2.imwrite(<span class="string">&#x27;O4_erosion.jpg&#x27;</span>, thresh)<span class="comment">#侵蝕</span></span><br><span class="line">    dilation = cv2.dilate(erosion,kernel,iterations=<span class="number">1</span>)</span><br><span class="line">    cv2.imwrite(<span class="string">&#x27;O4_dilation.jpg&#x27;</span>, thresh)<span class="comment">#膨脹</span></span><br><span class="line"></span><br><span class="line">    imgray=cv2.Canny(erosion,<span class="number">100</span>,<span class="number">200</span>)</span><br><span class="line">    cv2.imwrite(<span class="string">&#x27;O5_Canny.jpg&#x27;</span>, imgray)<span class="comment">#邊緣檢測</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;偵測輪廓&quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># contours,hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)</span></span><br><span class="line">    contours, hierarchy = cv2.findContours(</span><br><span class="line">        imgray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">len</span>(contours))  <span class="comment"># 结果应该为 2</span></span><br><span class="line">    <span class="comment"># cnt = contours[1]</span></span><br><span class="line">    dl = []</span><br><span class="line">    <span class="keyword">for</span> cnt <span class="keyword">in</span> contours:</span><br><span class="line">        area = cv2.contourArea(cnt)  <span class="comment"># 4386.5</span></span><br><span class="line">        dl.append(area)</span><br><span class="line">        <span class="keyword">if</span> area &gt; <span class="number">5000</span>:</span><br><span class="line">            <span class="comment"># cv2.drawContours(img, [cnt], 0, (0, 0, 255), 2)</span></span><br><span class="line">            x, y, w, h = cv2.boundingRect(cnt)  <span class="comment"># 外接矩形</span></span><br><span class="line">            cv2.rectangle(img, (x, y), (x + w, y + h), (<span class="number">0</span>, <span class="number">255</span>, <span class="number">0</span>), <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># rect = cv2.minAreaRect(cnt)  # 最小外接矩形</span></span><br><span class="line">            <span class="comment"># box = np.int0(cv2.boxPoints(rect))  # 矩形的四个角点取整</span></span><br><span class="line">            <span class="comment"># cv2.drawContours(img, [box], 0, (255, 0, 0), 2)</span></span><br><span class="line">    <span class="built_in">print</span>(x, y, w, h )</span><br><span class="line">    cv2.imwrite(<span class="string">&#x27;O6_contours.jpg&#x27;</span>, img)<span class="comment">#尋找輪廓後外接矩形</span></span><br><span class="line">    check_cut_line = <span class="number">250</span></span><br><span class="line">    cv2.line(img, (check_cut_line, <span class="number">0</span>), (check_cut_line, <span class="number">1000</span>), (<span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>), <span class="number">2</span>)</span><br><span class="line">    cv2.line(img, (check_cut_line, <span class="built_in">int</span>((y+h+y)/<span class="number">2</span>)), (check_cut_line+(w+x-check_cut_line), <span class="built_in">int</span>((y+h+y)/<span class="number">2</span>)), (<span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>),<span class="number">2</span>)</span><br><span class="line">    result = <span class="string">&quot;&#123;:.2f&#125;mm&quot;</span>.<span class="built_in">format</span>(<span class="built_in">round</span>(w+x-check_cut_line)*<span class="number">0.03</span>,<span class="number">2</span>)</span><br><span class="line">    cv2.putText(img, result, (check_cut_line+(w+x-check_cut_line)+<span class="number">50</span>, <span class="built_in">int</span>((y+h+y)/<span class="number">2</span>)), cv2.FONT_HERSHEY_SIMPLEX,</span><br><span class="line">      <span class="number">1</span>, (<span class="number">200</span>, <span class="number">23</span>, <span class="number">0</span>), <span class="number">2</span>, cv2.LINE_AA)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;(w+x-check_cut_line)*<span class="number">0.03</span>&#125;</span>mm&quot;</span>)</span><br><span class="line">    cv2.imwrite(<span class="string">&#x27;O7_result.jpg&#x27;</span>, img)<span class="comment">#最終結果</span></span><br><span class="line">    cv2.imshow(<span class="string">&#x27;show&#x27;</span>,img)</span><br><span class="line">    cv2.imshow(<span class="string">&#x27;sho2w&#x27;</span>,imgray)</span><br><span class="line">    cv2.waitKey()</span><br><span class="line"></span><br><span class="line">cut_fn(img,<span class="number">1020</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2022/12/22/%E6%AA%A2%E6%B8%AC%E5%9C%93%E6%98%AF%E5%90%A6%E8%B6%85%E5%87%BA%E5%9F%BA%E6%BA%96%E7%B7%9A%E8%BC%B8%E5%87%BA%E8%A3%9C%E6%AD%A3%E5%80%BC/" data-id="cm9j89l7r0007mgu2bu6614br" data-title="檢測圓是否超出基準線輸出補正值" class="article-share-link">Share</a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-Yolov5-doc" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2022/11/23/Yolov5-doc/" class="article-date">
-  <time class="dt-published" datetime="2022-11-23T06:26:54.000Z" itemprop="datePublished">2022-11-23</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2022/11/23/Yolov5-doc/">Yolov5 Setting and Training</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="內容"><a href="#內容" class="headerlink" title="內容"></a>內容</h2><h3 id="一、-下載Yolov5-專案"><a href="#一、-下載Yolov5-專案" class="headerlink" title="一、 下載Yolov5 專案"></a><font size=5><a href="#%E4%B8%80%E3%80%81-%E4%B8%8B%E8%BC%89YOLOv5-%E5%B0%88%E6%A1%88">一、 下載Yolov5 專案</a></font></h3><h3 id="二、-安裝依賴套件"><a href="#二、-安裝依賴套件" class="headerlink" title="二、 安裝依賴套件"></a><font size=5><a href="#%E4%BA%8C%E3%80%81-%E5%AE%89%E8%A3%9D%E4%BE%9D%E8%B3%B4%E5%A5%97%E4%BB%B6-1">二、 安裝依賴套件</a></font></h3><h3 id="三、-圖片標註"><a href="#三、-圖片標註" class="headerlink" title="三、 圖片標註"></a><font size=5><a href="#%E4%B8%89%E3%80%81-%E5%9C%96%E7%89%87%E6%A8%99%E8%A8%BB-1">三、 圖片標註</a></font></h3><h3 id="四、-Yolov5模型訓練"><a href="#四、-Yolov5模型訓練" class="headerlink" title="四、 Yolov5模型訓練"></a><font size=5><a href="#%E5%9B%9B%E3%80%81Yolov5%E6%A8%A1%E5%9E%8B%E8%A8%93%E7%B7%B4">四、 Yolov5模型訓練</a></font></h3><h3 id="五、-Yolov5模型調用"><a href="#五、-Yolov5模型調用" class="headerlink" title="五、 Yolov5模型調用"></a><font size=5><a href="#%E4%BA%94%E3%80%81-Yolov5%E6%A8%A1%E5%9E%8B%E8%AA%BF%E7%94%A8-1">五、 Yolov5模型調用</a></font></h3><hr>
-<h2 id="一、-下載YOLOv5-專案"><a href="#一、-下載YOLOv5-專案" class="headerlink" title="一、 下載YOLOv5 專案"></a>一、 下載YOLOv5 專案</h2><h3 id="開啟cmd"><a href="#開啟cmd" class="headerlink" title="開啟cmd"></a>開啟cmd</h3><h3 id="執行git-clone-指令"><a href="#執行git-clone-指令" class="headerlink" title="執行git clone 指令"></a>執行git clone 指令</h3><p><code>cmd</code></p>
-<figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/ultralytics/yolov5</span><br></pre></td></tr></table></figure>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p1.png?raw=true" alt="clone yolov5 專案"></p>
-<hr>
-<h3 id="完成後將在資料夾底下看到yolov5的資料夾。"><a href="#完成後將在資料夾底下看到yolov5的資料夾。" class="headerlink" title="完成後將在資料夾底下看到yolov5的資料夾。"></a>完成後將在資料夾底下看到yolov5的資料夾。</h3><p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p2.png?raw=true" alt="yolov5 專案"></p>
-<hr>
-<h2 id="二、-安裝依賴套件-1"><a href="#二、-安裝依賴套件-1" class="headerlink" title="二、 安裝依賴套件"></a>二、 安裝依賴套件</h2><h3 id="安裝完成後，執行指令cd-yolov5-至資料夾下"><a href="#安裝完成後，執行指令cd-yolov5-至資料夾下" class="headerlink" title="安裝完成後，執行指令cd yolov5 至資料夾下"></a>安裝完成後，執行指令cd yolov5 至資料夾下</h3><h3 id="執行pip安裝依賴套件。"><a href="#執行pip安裝依賴套件。" class="headerlink" title="執行pip安裝依賴套件。"></a>執行pip安裝依賴套件。</h3><h3 id="pip-install-r-requirements-txt"><a href="#pip-install-r-requirements-txt" class="headerlink" title="pip install -r requirements.txt"></a>pip install -r requirements.txt</h3><h3 id="若pytorch-pip安裝無錯誤可跳過以下步驟。"><a href="#若pytorch-pip安裝無錯誤可跳過以下步驟。" class="headerlink" title="若pytorch pip安裝無錯誤可跳過以下步驟。"></a><a href="#%E5%9F%B7%E8%A1%8C%E6%8C%87%E4%BB%A4">若pytorch pip安裝無錯誤可跳過以下步驟。</a></h3><hr>
-<h3 id="注-若pytorch-pip安裝失敗則需手動安裝，若無錯誤可跳過以下步驟。"><a href="#注-若pytorch-pip安裝失敗則需手動安裝，若無錯誤可跳過以下步驟。" class="headerlink" title="注 : 若pytorch pip安裝失敗則需手動安裝，若無錯誤可跳過以下步驟。"></a><font color=#FF0000>注 : 若pytorch pip安裝失敗則需手動安裝，若無錯誤可跳過以下步驟。</font></h3><h3 id="至-Previous-PyTorch-Versions-PyTorch-下載對應自己電腦GPU版本的pytorch"><a href="#至-Previous-PyTorch-Versions-PyTorch-下載對應自己電腦GPU版本的pytorch" class="headerlink" title="至 Previous PyTorch Versions| PyTorch  下載對應自己電腦GPU版本的pytorch"></a>至 <a target="_blank" rel="noopener" href="https://pytorch.org/get-started/previous-versions/">Previous PyTorch Versions| PyTorch</a>  下載對應自己電腦GPU版本的pytorch</h3><h3 id="先在cmd終端下輸入-nvidia-smi-查詢電腦GPU-CUDA-Version資訊。"><a href="#先在cmd終端下輸入-nvidia-smi-查詢電腦GPU-CUDA-Version資訊。" class="headerlink" title="先在cmd終端下輸入 nvidia-smi 查詢電腦GPU CUDA Version資訊。"></a>先在cmd終端下輸入 nvidia-smi 查詢電腦GPU CUDA Version資訊。</h3><p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p3.png?raw=true" alt="CUDA Version"></p>
-<hr>
-<h3 id="以本機電腦為例-CUDA-Version-最高支援為11-7，所以要找支援11-7以下的pytorch版本，從官網下載支援的頁面找到v1-12-1版本，複製下方CUDA-11-6的安裝指令-分為conda與wheel安裝方式-，若使用Anaconda則使用conda安裝，若使用pip安裝則為下方的pip安裝指令。"><a href="#以本機電腦為例-CUDA-Version-最高支援為11-7，所以要找支援11-7以下的pytorch版本，從官網下載支援的頁面找到v1-12-1版本，複製下方CUDA-11-6的安裝指令-分為conda與wheel安裝方式-，若使用Anaconda則使用conda安裝，若使用pip安裝則為下方的pip安裝指令。" class="headerlink" title="以本機電腦為例: CUDA Version 最高支援為11.7，所以要找支援11.7以下的pytorch版本，從官網下載支援的頁面找到v1.12.1版本，複製下方CUDA 11.6的安裝指令(分為conda與wheel安裝方式)，若使用Anaconda則使用conda安裝，若使用pip安裝則為下方的pip安裝指令。"></a>以本機電腦為例: CUDA Version 最高支援為11.7，所以要找支援11.7以下的pytorch版本，從官網下載支援的頁面找到v1.12.1版本，複製下方CUDA 11.6的安裝指令(分為conda與wheel安裝方式)，若使用Anaconda則使用conda安裝，若使用pip安裝則為下方的pip安裝指令。</h3><p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p4.png?raw=true" alt="Conda Install command"></p>
-<hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p5.png?raw=true" alt="PIP Install command"></p>
-<hr>
-<h3 id="注"><a href="#注" class="headerlink" title="注:"></a><font color=#FF0000>注:</font></h3><h3 id="1-若無GPU可安裝CPU-only的安裝指令"><a href="#1-若無GPU可安裝CPU-only的安裝指令" class="headerlink" title="1.若無GPU可安裝CPU only的安裝指令"></a><font color=#FF0000>1.若無GPU可安裝CPU only的安裝指令</font></h3><h3 id="2-torch的版本與torchvision版本是有相對應的，不可安裝錯誤。"><a href="#2-torch的版本與torchvision版本是有相對應的，不可安裝錯誤。" class="headerlink" title="2.torch的版本與torchvision版本是有相對應的，不可安裝錯誤。"></a><font color=#FF0000>2.torch的版本與torchvision版本是有相對應的，不可安裝錯誤。</font></h3><h3 id="3-安裝GPU版本torch前請先將CUDA環境安裝設定完成。"><a href="#3-安裝GPU版本torch前請先將CUDA環境安裝設定完成。" class="headerlink" title="3.安裝GPU版本torch前請先將CUDA環境安裝設定完成。"></a><font color=#FF0000>3.安裝GPU版本torch前請先將CUDA環境安裝設定完成。</font></h3><h3 id="Win10-安裝-CUDA、cuDNN-教學"><a href="#Win10-安裝-CUDA、cuDNN-教學" class="headerlink" title="Win10 安裝 CUDA、cuDNN 教學"></a><a target="_blank" rel="noopener" href="https://medium.com/ching-i/win10-%E5%AE%89%E8%A3%9D-cuda-cudnn-%E6%95%99%E5%AD%B8-c617b3b76deb">Win10 安裝 CUDA、cuDNN 教學</a></h3><hr>
-<h3 id="完成後測試yolov5是否能成功執行"><a href="#完成後測試yolov5是否能成功執行" class="headerlink" title="完成後測試yolov5是否能成功執行"></a>完成後測試yolov5是否能成功執行</h3><h3 id="執行指令"><a href="#執行指令" class="headerlink" title="執行指令"></a>執行指令</h3><h3 id="開啟webcam偵測"><a href="#開啟webcam偵測" class="headerlink" title="開啟webcam偵測"></a>開啟webcam偵測</h3><p><code>cmd</code></p>
-<figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python detect.py --source <span class="number">0</span>  </span><br></pre></td></tr></table></figure>
-<h3 id="偵測圖片"><a href="#偵測圖片" class="headerlink" title="偵測圖片"></a>偵測圖片</h3><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python detect.py --source *.jpg</span><br></pre></td></tr></table></figure>
-<h3 id="偵測影片"><a href="#偵測影片" class="headerlink" title="偵測影片"></a>偵測影片</h3><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python detect.py --source *.mp4</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="三、-圖片標註-1"><a href="#三、-圖片標註-1" class="headerlink" title="三、 圖片標註"></a>三、 圖片標註</h2><h3 id="下載標註工具-LabelImg"><a href="#下載標註工具-LabelImg" class="headerlink" title="下載標註工具 : LabelImg"></a>下載標註工具 : LabelImg</h3><h3 id="labelimg-v1-8-0"><a href="#labelimg-v1-8-0" class="headerlink" title="labelimg v1.8.0"></a><a target="_blank" rel="noopener" href="https://github.com/heartexlabs/labelImg/releases">labelimg v1.8.0</a></h3><hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p6.png?raw=true" alt="LabelImg github page"></p>
-<h3 id="下載解壓縮完成後開啟labelimg-exe，介面如下"><a href="#下載解壓縮完成後開啟labelimg-exe，介面如下" class="headerlink" title="下載解壓縮完成後開啟labelimg.exe，介面如下"></a>下載解壓縮完成後開啟labelimg.exe，介面如下</h3><p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p7.png?raw=true" alt="LabelImg"></p>
-<hr>
-<h3 id="Labelimg操作方式"><a href="#Labelimg操作方式" class="headerlink" title="Labelimg操作方式"></a>Labelimg操作方式</h3><h3 id="1-開啟待標註的影像資料夾"><a href="#1-開啟待標註的影像資料夾" class="headerlink" title="1.開啟待標註的影像資料夾"></a>1.開啟待標註的影像資料夾</h3><hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p8.png?raw=true" alt="LabelImg"></p>
-<hr>
-<h3 id="開啟成功後，右下角File-List會出現該資料夾內的圖片名稱。"><a href="#開啟成功後，右下角File-List會出現該資料夾內的圖片名稱。" class="headerlink" title="開啟成功後，右下角File List會出現該資料夾內的圖片名稱。"></a>開啟成功後，右下角File List會出現該資料夾內的圖片名稱。</h3><hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p9.png?raw=true" alt="File List"></p>
-<hr>
-<h3 id="2-更改圖片標註後檔案儲存路徑"><a href="#2-更改圖片標註後檔案儲存路徑" class="headerlink" title="2.更改圖片標註後檔案儲存路徑"></a>2.更改圖片標註後檔案儲存路徑</h3><hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p10.png?raw=true" alt="Change Save Path"></p>
-<hr>
-<h3 id="選擇標註後的檔案儲存路徑，標註檔名會對應圖片集的檔案名稱。"><a href="#選擇標註後的檔案儲存路徑，標註檔名會對應圖片集的檔案名稱。" class="headerlink" title="選擇標註後的檔案儲存路徑，標註檔名會對應圖片集的檔案名稱。"></a>選擇標註後的檔案儲存路徑，標註檔名會對應圖片集的檔案名稱。</h3><h3 id="注-若訓練模型為yolov5，其標註檔案格式需更改為yolo，點擊此按鈕即可改變格式。"><a href="#注-若訓練模型為yolov5，其標註檔案格式需更改為yolo，點擊此按鈕即可改變格式。" class="headerlink" title="注: 若訓練模型為yolov5，其標註檔案格式需更改為yolo，點擊此按鈕即可改變格式。"></a>注: 若訓練模型為yolov5，其標註檔案格式需更改為yolo，點擊此按鈕即可改變格式。</h3><hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p11.png?raw=true" alt=" PascalVOC --&gt; yolo "></p>
-<hr>
-<h3 id="3-圖片標註方式"><a href="#3-圖片標註方式" class="headerlink" title="3.圖片標註方式"></a>3.圖片標註方式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">快捷鍵 : </span><br><span class="line">W : 開啟標註</span><br><span class="line">A : 上一張</span><br><span class="line">D : 下一張</span><br><span class="line">Ctrl + S : 儲存</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-<hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p12.png?raw=true" alt="Label"></p>
-<hr>
-<h3 id="標註結果"><a href="#標註結果" class="headerlink" title="標註結果:"></a>標註結果:</h3><hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p13.png?raw=true" alt="Label result"></p>
-<hr>
-<h3 id="四、Yolov5模型訓練"><a href="#四、Yolov5模型訓練" class="headerlink" title="四、Yolov5模型訓練"></a>四、Yolov5模型訓練</h3><h3 id="1-訓練資料建立"><a href="#1-訓練資料建立" class="headerlink" title="1.訓練資料建立"></a>1.訓練資料建立</h3><h3 id="將標註完成的圖片資料夾與標註txt檔資料夾共同存放至一個自行建立的資料夾中，如以下例"><a href="#將標註完成的圖片資料夾與標註txt檔資料夾共同存放至一個自行建立的資料夾中，如以下例" class="headerlink" title="將標註完成的圖片資料夾與標註txt檔資料夾共同存放至一個自行建立的資料夾中，如以下例"></a>將標註完成的圖片資料夾與標註txt檔資料夾共同存放至一個自行建立的資料夾中，如以下例</h3><hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p14.png?raw=true" alt="make a dir"></p>
-<hr>
-<h3 id="創建一個名為-cucumber-self-dataset-sep的資料夾"><a href="#創建一個名為-cucumber-self-dataset-sep的資料夾" class="headerlink" title="創建一個名為 cucumber_self_dataset_sep的資料夾"></a>創建一個名為 cucumber_self_dataset_sep的資料夾</h3><h3 id="將圖片放置在images-注-圖片資料夾名稱必須為images"><a href="#將圖片放置在images-注-圖片資料夾名稱必須為images" class="headerlink" title="將圖片放置在images (注:圖片資料夾名稱必須為images) "></a>將圖片放置在images <font color=#FF0000>(注:圖片資料夾名稱必須為images) </font></h3><h3 id="將標註檔案放置在labels-注-圖片資料夾名稱必須為labels"><a href="#將標註檔案放置在labels-注-圖片資料夾名稱必須為labels" class="headerlink" title="將標註檔案放置在labels (注:圖片資料夾名稱必須為labels) "></a>將標註檔案放置在labels <font color=#FF0000>(注:圖片資料夾名稱必須為labels) </font></h3><h3 id="再將圖片集拆分為訓練及與驗證集分別存放，如下"><a href="#再將圖片集拆分為訓練及與驗證集分別存放，如下" class="headerlink" title="再將圖片集拆分為訓練及與驗證集分別存放，如下:"></a>再將圖片集拆分為訓練及與驗證集分別存放，如下:</h3><hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p15.png?raw=true" alt="image dir"></p>
-<hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p16.png?raw=true" alt="label dir"></p>
-<hr>
-<h3 id="完成後將此cucumber-self-dataset-sep資料夾放置到-x2F-yolov5-x2F-data-x2F-images-x2F-路徑下以便執行訓練。"><a href="#完成後將此cucumber-self-dataset-sep資料夾放置到-x2F-yolov5-x2F-data-x2F-images-x2F-路徑下以便執行訓練。" class="headerlink" title="完成後將此cucumber_self_dataset_sep資料夾放置到 &#x2F;yolov5&#x2F;data&#x2F;images&#x2F; 路徑下以便執行訓練。"></a>完成後將此cucumber_self_dataset_sep資料夾放置到 &#x2F;yolov5&#x2F;data&#x2F;images&#x2F; 路徑下以便執行訓練。</h3><h3 id="2-建立訓練-yaml-檔案"><a href="#2-建立訓練-yaml-檔案" class="headerlink" title="2.建立訓練 yaml 檔案"></a>2.建立訓練 yaml 檔案</h3><h3 id="yaml是yolov5訓練時抓取資料集的路徑參數設定檔，"><a href="#yaml是yolov5訓練時抓取資料集的路徑參數設定檔，" class="headerlink" title="yaml是yolov5訓練時抓取資料集的路徑參數設定檔，"></a>yaml是yolov5訓練時抓取資料集的路徑參數設定檔，</h3><h2 id="設定內容如下"><a href="#設定內容如下" class="headerlink" title="設定內容如下:"></a>設定內容如下:</h2><hr>
-<p><img src="https://github.com/sjctyjin/Yolov5_detect_cucumber/blob/main/p17.png?raw=true" alt="label dir"></p>
-<hr>
-<p><code>yaml</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">path : yolov5路徑下存放訓練集的目錄</span><br><span class="line">train : 訓練集資料夾的上層目錄</span><br><span class="line">val : 驗證集資料夾的上層目錄</span><br><span class="line">nc : 標註類別數量</span><br><span class="line">names : 標註類別名稱</span><br></pre></td></tr></table></figure>
-
-<h3 id="3-執行訓練指令"><a href="#3-執行訓練指令" class="headerlink" title="3.執行訓練指令"></a>3.執行訓練指令</h3><h3 id="在yolov5目錄下，執行指令"><a href="#在yolov5目錄下，執行指令" class="headerlink" title="在yolov5目錄下，執行指令"></a>在yolov5目錄下，執行指令</h3><p><code>cmd</code></p>
-<figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">python train.py --img <span class="number">416</span> --batch <span class="number">16</span> --epochs <span class="number">500</span> --data dataset_cucumber_221114.yaml --weights yolov5s.pt</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">--img 設定圖像大小</span><br><span class="line">--batch 設定batch大小 </span><br><span class="line">--epochs 設定epochs大小</span><br><span class="line">--data 設定yaml檔案</span><br><span class="line">--weights 設定yolov5預訓練權重</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="五、-Yolov5模型調用-1"><a href="#五、-Yolov5模型調用-1" class="headerlink" title="五、 Yolov5模型調用"></a>五、 Yolov5模型調用</h2><h3 id="模型訓練完成後，其pt權重檔存放於-x2F-yolov5-x2F-runs-x2F-train-x2F-exp-x2F-weight-x2F"><a href="#模型訓練完成後，其pt權重檔存放於-x2F-yolov5-x2F-runs-x2F-train-x2F-exp-x2F-weight-x2F" class="headerlink" title="模型訓練完成後，其pt權重檔存放於 &#x2F;yolov5&#x2F;runs&#x2F;train&#x2F;exp*&#x2F;weight&#x2F;"></a>模型訓練完成後，其pt權重檔存放於 &#x2F;yolov5&#x2F;runs&#x2F;train&#x2F;exp*&#x2F;weight&#x2F;</h3><h3 id="訓練完成後會自動儲存"><a href="#訓練完成後會自動儲存" class="headerlink" title="訓練完成後會自動儲存"></a>訓練完成後會自動儲存</h3><h3 id="best-pt-訓練過程中最好的結果權重"><a href="#best-pt-訓練過程中最好的結果權重" class="headerlink" title="best.pt 訓練過程中最好的結果權重"></a>best.pt 訓練過程中最好的結果權重</h3><h3 id="last-pt-訓練到最後一次儲存的權重"><a href="#last-pt-訓練到最後一次儲存的權重" class="headerlink" title="last.pt  訓練到最後一次儲存的權重"></a>last.pt  訓練到最後一次儲存的權重</h3><hr>
-<h3 id="調用訓練後權重檔"><a href="#調用訓練後權重檔" class="headerlink" title="調用訓練後權重檔"></a>調用訓練後權重檔</h3><p><code>python</code></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"></span><br><span class="line">model = torch.hub.load(<span class="string">&#x27;ultralytics/yolov5&#x27;</span>, <span class="string">&#x27;custom&#x27;</span>, </span><br><span class="line">path=<span class="string">&#x27;runs/train/exp/weights/best.pt&#x27;</span>,force_reload=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">cap = cv2.VideoCapture(<span class="number">0</span>)<span class="comment">#開啟網路攝影機</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> cap.isOpened():</span><br><span class="line">    success, frame = cap.read()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> success:</span><br><span class="line">      <span class="built_in">print</span>(<span class="string">&quot;Ignoring empty camera frame.&quot;</span>)</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">    frame = cv2.resize(frame,(<span class="number">800</span>,<span class="number">480</span>))</span><br><span class="line">    results = model(frame)</span><br><span class="line">    cv2.imshow(<span class="string">&#x27;YOLO COCO 01&#x27;</span>, np.squeeze(results.render()))</span><br><span class="line">    <span class="keyword">if</span> cv2.waitKey(<span class="number">1</span>) &amp; <span class="number">0xFF</span> == <span class="number">27</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">cap.release()</span><br><span class="line">cv2.destroyAllWindows()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://sjctyjin.github.io/2022/11/23/Yolov5-doc/" data-id="cm9j89l7p0003mgu23n1ohoy0" data-title="Yolov5 Setting and Training" class="article-share-link">Share</a>
+      <a data-url="https://sjctyjin.github.io/2023/06/28/NX%E5%AE%89%E8%A3%9D%E7%B4%80%E9%8C%84/" data-id="cma7wdna20003dku28xuxgkbw" data-title="NX安裝紀錄" class="article-share-link">Share</a>
       
       
       
@@ -974,6 +939,11 @@
 
   
 
+
+  <nav id="page-nav">
+    
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">下一頁 &raquo;</a>
+  </nav>
 
 </section>
         
@@ -991,7 +961,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">彙整</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">二月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">二月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/05/">五月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">二月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">二月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a></li></ul>
     </div>
   </div>
 
@@ -1004,23 +974,23 @@
       <ul>
         
           <li>
+            <a href="/2025/05/03/window11%E5%9F%B7%E8%A1%8Cpython-%E7%99%BC%E7%94%9Fcp950%E7%9A%84%E7%B7%A8%E7%A2%BC%E5%95%8F%E9%A1%8C/">window11執行python 發生cp950的編碼問題</a>
+          </li>
+        
+          <li>
+            <a href="/2025/04/29/ISAAC-SIM-4-2-Window%E7%92%B0%E5%A2%83%E4%B8%8B%E5%BB%BA%E7%BD%AECurobo/">ISAAC-SIM-4.2 Window環境下建置Curobo</a>
+          </li>
+        
+          <li>
+            <a href="/2025/04/24/%E9%96%8B%E7%99%BC%E6%97%A5%E8%AA%8C%E6%9F%A5%E7%9C%8B%E5%99%A8%E9%83%A8%E7%BD%B2%E8%88%87%E5%BB%BA%E7%BD%AE%E6%8C%87%E5%8D%97/">開發日誌查看器部署與建置指南</a>
+          </li>
+        
+          <li>
             <a href="/2025/04/15/GR00T-N1%E5%A4%9A%E6%A8%A1%E6%89%8B%E8%87%82%E8%A8%93%E7%B7%B4%E7%9A%84%E7%90%86%E8%A7%A3/">GR00T N1</a>
           </li>
         
           <li>
             <a href="/2025/02/13/Fanuc%E7%9C%9F%E5%AF%A6%E6%89%8B%E8%87%82%E8%88%87Rviz%E4%BB%BF%E7%9C%9F/">Fanuc真實手臂與Rviz仿真</a>
-          </li>
-        
-          <li>
-            <a href="/2025/02/13/hello-world/">Hello World</a>
-          </li>
-        
-          <li>
-            <a href="/2024/02/21/%E6%9B%BC%E9%99%80%E7%BE%85%E4%B9%9D%E5%AE%AE%E6%A0%BC%E6%80%9D%E8%80%83%E6%B3%95/">曼陀羅九宮格思考法</a>
-          </li>
-        
-          <li>
-            <a href="/2024/02/19/%E5%B0%88%E5%88%A9rodamap/">專利rodamap</a>
           </li>
         
       </ul>
