@@ -1,0 +1,14 @@
+{
+  "positions": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "metadata": {
+    "total_positions": 1,
+    "urdf_source": "examples/models/urdf/urdf3/dual_piepr_humanity.urdf",
+    "analysis_date": "20250826_113131"
+  }
+}

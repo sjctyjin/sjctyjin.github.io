@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8"/>
+
+        <title>ROS2機器人控制介面</title>
+
+        <style>
+            :root {
+                --primary-color: #3498db;
+                --primary-dark: #2980b9;
+                --panel-bg: rgba(33, 33, 33, 0.9);
+                --panel-dark: rgba(26, 26, 26, 0.9);
+                --panel-item: rgba(66, 66, 66, 0.6);
+                --success-color: #2ecc71;
+                --warning-color: #f39c12;
+                --error-color: #e74c3c;
+                --text-color: #ecf0f1;
+                --text-secondary: #bdc3c7;
+            }
+            
+            html, body {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                font-family: 'Segoe UI', Tahoma, 'Microsoft YaHei', sans-serif;
+                height: 100%;
+                width: 100%;
+            }
+            
+            /* 主佈局 */
+            .main-container {
+                display: flex;
+                flex-direction: row;
+                height: 100vh;
+                width: 100vw;
+                position: relative;
+            }
+            
+            /* 3D視圖容器 */
+            #viewer-container {
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            /* 控制面板容器 - 在大屏幕上顯示為側邊欄 */
+            .panels-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none; /* 允許點擊穿透到下面的3D視圖 */
+                z-index: 10;
+            }
+            
+            /* 控制面板樣式 */
+            .control-panel {
+                position: absolute;
+                background: var(--panel-bg);
+                color: var(--text-color);
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(5px);
+                pointer-events: auto; /* 恢復點擊事件 */
+                overflow-y: auto;
+                transition: all 0.3s ease;
+            }
+            
+            /* 左側面板 - 關節控制 */
+            #joint-panel {
+                left: 10px;
+                top: 10px;
+                width: 280px;
+                max-height: calc(100vh - 40px);
+            }
+            
+            /* 右側面板 - 命令和相機 */
+            #command-panel {
+                right: 10px;
+                top: 10px;
+                width: 300px;
+                max-height: calc(100vh - 40px);
+                display: flex;
+                flex-direction: column;
+            }
+            
+            /* 面板標題 */
+            .panel-header {
+                margin-top: 0;
+                margin-bottom: 15px;
+                padding-bottom: 8px;
+                border-bottom: 2px solid var(--primary-color);
+                color: var(--primary-color);
+                font-size: 18px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            /* 折疊按鈕 */
+            .collapse-btn {
+                background: none;
+                border: none;
+                color: var(--primary-color);
+                cursor: pointer;
+                font-size: 18px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                transition: background 0.2s;
+            }
+            
+            .collapse-btn:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            /* 關節控制項 */
+            .joint-control {
+                margin-bottom: 15px;
+                padding: 12px;
+                background: var(--panel-item);
+                border-radius: 6px;
+                transition: background 0.3s;
+            }
+            
+            .joint-control:hover {
+                background: rgba(80, 80, 80, 0.6);
+            }
+            
+            .joint-label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: bold;
+                color: var(--primary-color);
+            }
+            
+            .value-display {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 5px;
+                font-size: 0.9em;
+                color: var(--text-secondary);
+            }
+            
+            .current-value {
+                font-weight: bold;
+                color: var(--success-color);
+            }
+            
+            input[type=range] {
+                width: 100%;
+                margin: 10px 0;
+                -webkit-appearance: none;
+                height: 8px;
+                border-radius: 4px;
+                background: #555;
+                outline: none;
+            }
+            
+            input[type=range]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: var(--primary-color);
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            
+            /* 按鈕組 */
+            .button-group {
+                margin-bottom: 20px;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            /* 對於小屏幕，改為單列顯示 */
+            @media (max-width: 480px) {
+                .button-group {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            .control-button {
+                padding: 12px 8px;
+                border: none;
+                border-radius: 5px;
+                background: var(--primary-color);
+                color: white;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            
+            .control-button:hover, .control-button:active {
+                background: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            }
+            
+            .emergency-button {
+                background: var(--error-color);
+                grid-column: span 2;
+            }
+            
+            @media (max-width: 480px) {
+                .emergency-button {
+                    grid-column: span 1;
+                }
+            }
+            
+            .emergency-button:hover, .emergency-button:active {
+                background: #c0392b;
+            }
+            
+            /* 相機容器 */
+            .camera-container {
+                margin-top: 10px;
+                border-radius: 6px;
+                overflow: hidden;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                min-height: 225px;
+                background: #000;
+                position: relative;
+            }
+            
+            #camera-feed {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            /* 狀態指示器 */
+            .status-indicator {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            
+            .status-dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                margin-right: 8px;
+            }
+            
+            .status-connected {
+                background-color: var(--success-color);
+            }
+            
+            .status-disconnected {
+                background-color: var(--error-color);
+            }
+            
+            .status-text {
+                font-size: 0.9em;
+            }
+            
+            /* 通知樣式 */
+            .notification {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%) translateY(20px);
+                padding: 12px 20px;
+                border-radius: 8px;
+                color: white;
+                font-size: 14px;
+                z-index: 1000;
+                opacity: 0;
+                transition: opacity 0.3s, transform 0.3s;
+                max-width: 90%;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
+            
+            .notification-success {
+                background-color: rgba(46, 204, 113, 0.9);
+            }
+            
+            .notification-error {
+                background-color: rgba(231, 76, 60, 0.9);
+            }
+            
+            /* 預設角度按鈕 */
+            .preset-buttons {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .preset-button {
+                flex: 1;
+                min-width: 80px;
+                padding: 8px;
+                border: none;
+                border-radius: 4px;
+                background: #7f8c8d;
+                color: white;
+                font-size: 0.85em;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            
+            .preset-button:hover, .preset-button:active {
+                background: #95a5a6;
+            }
+            
+            /* 移動裝置樣式 */
+            .mobile-menu-button {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 1000;
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                border-radius: 50px;
+                padding: 10px 20px;
+                font-weight: bold;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                display: none;
+                cursor: pointer;
+            }
+            
+            /* 在小屏幕上顯示菜單按鈕並折疊面板 */
+            @media (max-width: 800px) {
+                .mobile-menu-button {
+                    display: block;
+                }
+                
+                #joint-panel, #command-panel {
+                    transform: translateY(-120%);
+                    max-height: 80vh;
+                    left: 0;
+                    right: 0;
+                    top: 0;
+                    width: auto;
+                    margin: 0 10px;
+                }
+                
+                #joint-panel.show-panel, #command-panel.show-panel {
+                    transform: translateY(0);
+                }
+                
+                /* 全屏模式下的面板 */
+                .fullscreen-panel {
+                    left: 0 !important;
+                    top: 0 !important;
+                    right: 0 !important;
+                    bottom: 0 !important;
+                    width: auto !important;
+                    height: auto !important;
+                    max-height: none !important;
+                    border-radius: 0 !important;
+                    z-index: 2000;
+                }
+            }
+            
+            /* 極小屏幕調整 */
+            @media (max-width: 400px) {
+                .preset-buttons {
+                    flex-direction: column;
+                }
+                
+                .preset-button {
+                    margin: 2px 0;
+                }
+            }
+            
+            /* 標籤元素，顯示當前屏幕尺寸 */
+            .screen-size-indicator {
+                position: fixed;
+                top: 5px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0,0,0,0.5);
+                color: white;
+                padding: 5px 10px;
+                border-radius: 20px;
+                font-size: 12px;
+                z-index: 9999;
+                pointer-events: none;
+                opacity: 0.7;
+            }
+            
+            /* 屏幕方向提示 */
+            .orientation-message {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.9);
+                color: white;
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .orientation-icon {
+                display: block;
+                margin: 20px auto;
+                font-size: 40px;
+                animation: rotate 2s infinite;
+            }
+            
+            @keyframes rotate {
+                0% { transform: rotate(0deg); }
+                50% { transform: rotate(90deg); }
+                100% { transform: rotate(0deg); }
+            }
+            
+            @media (max-width: 450px) and (orientation: landscape) {
+                .orientation-message {
+                    display: flex;
+                }
+            }
+            
+            /* 工具提示 */
+            .tooltip {
+                position: absolute;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 5px 10px;
+                border-radius: 4px;
+                font-size: 12px;
+                z-index: 1000;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+            /* 复制这些样式到您的CSS样式表中 */
+
+            /* 底部面板 - 末端姿態 */
+            #pose-panel {
+                left: 10px;
+                bottom: 10px;
+                width: 280px;
+                max-height: 220px;
+            }
+
+            /* 末端姿態資訊 */
+            .end-pose-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .pose-value {
+                padding: 10px;
+                background: var(--panel-item);
+                border-radius: 6px;
+                text-align: center;
+            }
+
+            .pose-label {
+                font-size: 0.85em;
+                color: var(--text-secondary);
+                margin-bottom: 5px;
+            }
+
+            .pose-number {
+                font-size: 1.1em;
+                font-weight: bold;
+                color: var(--success-color);
+            }
+
+            /* 在小屏幕上显示菜单按钮时的样式 */
+            @media (max-width: 800px) {
+                #pose-panel {
+                    transform: translateY(-120%);
+                    max-height: 80vh;
+                    left: 0;
+                    right: 0;
+                    top: 0;
+                    width: auto;
+                    margin: 0 10px;
+                }
+                
+                #pose-panel.show-panel {
+                    transform: translateY(0);
+                }
+            }
+        </style>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./build/three.module.js",
+					"three/addons/": "./examples/jsm/"
+				}
+			}
+		</script>
+		<script>
+            var scene, camera, renderer, controls;
+            var robot;
+            var ros = null;
+            var currentPanel = null;
+            var isMobileView = false;
+		</script>
+		<script type="module">
+			import {
+				WebGLRenderer,
+				PerspectiveCamera,
+				Scene,
+				Mesh,
+				PlaneGeometry,
+				ShadowMaterial,
+				DirectionalLight,
+				PCFSoftShadowMap,
+				sRGBEncoding,
+				Color,
+				AmbientLight,
+				Box3,
+				LoadingManager,
+				MathUtils,
+                SphereGeometry,
+                MeshBasicMaterial,
+                Vector3
+			} from 'three';
+			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+			import URDFLoader from 'three/addons/loaders/URDFLoader.js';
+
+            let objectMarker; // 用于存储物体标记的全局变量
+
+            
+			// 创建一个红色球体并添加到场景中
+            window.createObjectMarker = function() {
+                // 创建球体几何体 - 参数为(半径, 水平分段数, 垂直分段数)
+                const geometry = new SphereGeometry(0.05, 32, 32);
+                // 创建红色材质
+                const material = new MeshBasicMaterial({ color: 0xff0000 });
+                // 创建网格对象
+                const sphere = new Mesh(geometry, material);
+                
+                // 设置位置 - 放在机器人前方的位置
+                sphere.position.set(0.3, 0.3, 0.3);
+                
+                // 添加到场景中
+                scene.add(sphere);
+                
+                console.log("已添加红色球体到场景中");
+                return sphere;
+            }
+
+            // 更新物体位置
+            window.updateObjectPosition = function(position) {
+                if (!objectMarker) {
+                    objectMarker = createObjectMarker();
+                    if (!objectMarker) return;
+                }
+                
+                // 更新位置
+                objectMarker.position.set(position.x, position.y, position.z);
+                
+                console.log(`更新标记位置到: X=${position.x.toFixed(2)}, Y=${position.y.toFixed(2)}, Z=${position.z.toFixed(2)}`);
+            }
+
+             // 控制物体标记的显示/隐藏
+             window.toggleObjectMarker = function() {
+                if (!objectMarker) {
+                    showNotification("物体标记尚未创建", true);
+                    return;
+                }
+                
+                objectMarker.visible = !objectMarker.visible;
+                
+                if (objectMarker.visible) {
+                    showNotification("已显示物体标记");
+                } else {
+                    showNotification("已隐藏物体标记");
+                }
+            };
+
+            // 在全局作用域中定義函數以供HTML使用
+            window.initROS = initROS;
+            window.callService = callService;
+            window.applyPreset = applyPreset;
+            window.togglePanel = togglePanel;
+            window.setFullscreenPanel = setFullscreenPanel;
+            window.closeFullscreenPanel = closeFullscreenPanel;
+            window.toggleAllPanels = toggleAllPanels;
+            
+            // 為我們模擬的機器人狀態創建默認值
+            window.robotState = {
+                connected: false,
+                jointValues: {}
+            };
+            window.robotState.endPose = {
+                position: { x: 0, y: 0, z: 0 },
+                orientation: { x: 0, y: 0, z: 0 }
+            };
+
+
+			setTimeout(function(){
+				console.debug("初始化3D視圖");
+				init();
+				render();
+                
+                // 檢測螢幕尺寸並設置UI
+                checkScreenSize();
+                window.addEventListener('resize', checkScreenSize);
+                
+                // 嘗試連接到ROS（如果支持）
+                if (typeof ROSLIB !== 'undefined') {
+                    initROS();
+                } else {
+                    console.log("ROSLIB未加載，使用本地模式");
+                    document.getElementById('connection-status').className = 'status-dot status-disconnected';
+                    document.getElementById('connection-text').innerText = '本地模式 (無ROS)';
+                }
+			}, 1000);
+            
+            function checkScreenSize() {
+                const width = window.innerWidth;
+                
+                // 更新尺寸指示器
+                const indicator = document.getElementById('screen-size');
+                if (indicator) {
+                    indicator.innerText = `${width}px × ${window.innerHeight}px`;
+                }
+                
+                // 設置移動視圖
+                isMobileView = width <= 800;
+                
+                // 如果是移動視圖，默認隱藏面板
+                if (isMobileView) {
+                    const panels = document.querySelectorAll('.control-panel');
+                    panels.forEach(panel => {
+                        panel.classList.remove('show-panel');
+                    });
+                }
+            }
+
+			function init() {
+				scene = new Scene();
+				scene.background = new Color(0x263238);
+
+				camera = new PerspectiveCamera();
+				// 设置相机位置 - 这个位置可以提供一个45度的视角
+                camera.position.set(1,1,1);
+				camera.lookAt(0, 0, 0);
+
+				renderer = new WebGLRenderer({ antialias: true });
+				renderer.outputEncoding = sRGBEncoding;
+				renderer.shadowMap.enabled = true;
+				renderer.shadowMap.type = PCFSoftShadowMap;
+                const viewerContainer = document.getElementById('viewer-container');
+				viewerContainer.appendChild(renderer.domElement);
+
+				const directionalLight = new DirectionalLight(0xffffff, 1.0);
+				directionalLight.castShadow = true;
+				directionalLight.shadow.mapSize.setScalar(1024);
+				directionalLight.position.set(1, 10, 1);
+				scene.add(directionalLight);
+
+				const ambientLight = new AmbientLight(0xffffff, 0.2);
+				scene.add(ambientLight);
+
+				const ground = new Mesh(new PlaneGeometry(), new ShadowMaterial({ opacity: 0.25 }));
+				ground.rotation.x = -Math.PI / 2;
+				ground.scale.setScalar(30);
+				ground.receiveShadow = true;
+				scene.add(ground);
+
+				controls = new OrbitControls(camera, renderer.domElement);
+				controls.minDistance = 0.1;
+				controls.target.y = 1;
+				controls.update();
+
+                
+
+				// 加載機器人模型
+				const manager = new LoadingManager();
+				const loader = new URDFLoader(manager);
+				//loader.load('models/urdf/T12/urdf/T12_flipped.URDF', result => {
+				loader.load('./examples/models/urdf/urdf3/crx10_ial.urdf', result => {
+					robot = result;
+                    window.robot = robot; // 使robot在全局可用
+				});
+
+				// 等待幾何體加載完成後將模型添加到場景
+				manager.onLoad = () => {
+					robot.rotation.x = Math.PI / 2;
+					robot.rotation.x *= (-1);
+					robot.traverse(c => {
+						c.castShadow = true;
+					});
+                    
+                    // 初始化關節控制
+                    setupJointControls();
+
+					robot.updateMatrixWorld(true);
+
+					const bb = new Box3();
+					bb.setFromObject(robot);
+
+					robot.position.y -= bb.min.y;
+					scene.add(robot);
+
+                    console.log("機器人模型加載完成");
+				};
+
+                // setTimeout(() => {
+                //         const redSphere = createObjectMarker();
+                //         console.log("延迟后添加了红色球体");
+                //     }, 2000);
+
+				onResize();
+				window.addEventListener('resize', onResize);
+                
+                // 添加觸摸事件支持
+                setupTouchControls();
+			}
+            
+            // 設置觸摸事件以更好地支持移動設備
+            function setupTouchControls() {
+                // 禁用雙指縮放以避免與OrbitControls衝突
+                renderer.domElement.addEventListener('touchstart', function(e) {
+                    if (e.touches.length > 1) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                
+                // 為移動設備優化OrbitControls
+                controls.rotateSpeed = 0.7; // 降低旋轉速度
+                controls.zoomSpeed = 1.2;   // 增加縮放速度
+                controls.enableDamping = true; // 啟用阻尼
+                controls.dampingFactor = 0.1;
+            }
+            
+            // 設置關節控制界面
+            function setupJointControls() {
+                const jointNames = ['J1', 'J2', 'J3', 'J4', 'J5', 'J6','gripper']; 
+                const controlDiv = document.getElementById('joint-controls');
+                
+                // 清空之前的控制項
+                controlDiv.innerHTML = '';
+                
+                // 創建預設位置按鈕
+                const presetContainer = document.createElement('div');
+                presetContainer.className = 'preset-buttons';
+                
+                const presets = [
+                    { name: '原點', values: [0, 0, 0, 0, 0, 0,0] },
+                    { name: '工作位置', values:  [0, 0.10, -1.03, -0.03, 1.05, 0,0] },
+                    { name: '運輸位置', values: [-1.03, 1.35, -0.64, -0.91, -0.61, -0.73,0] }
+                ];
+                
+                presets.forEach((preset, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'preset-button';
+                    button.innerText = preset.name;
+                    button.onclick = () => {
+                        applyPreset(index);
+                    };
+                    presetContainer.appendChild(button);
+                });
+                
+                controlDiv.appendChild(presetContainer);
+                
+                // 為每個關節創建控制項
+                jointNames.forEach((name, index) => {
+                    const joint = robot.joints[name];
+                    if (!joint) {
+                        console.warn(`找不到關節: ${name}`);
+                        return;
+                    }
+                    
+                    // 存儲初始關節限制
+                    window.robotState.jointValues[name] = 0;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'joint-control';
+                    
+                    const label = document.createElement('label');
+                    label.className = 'joint-label';
+                    label.innerText = name;
+                    
+                    const valueDisplay = document.createElement('div');
+                    valueDisplay.className = 'value-display';
+
+                    var minLimit = joint.limit?.lower || 0;
+                    var maxLimit = joint.limit?.upper || 3.14;
+                    console.log("Name------------- : "+name);
+                    if(name == "J1"){
+                        minLimit = -2.618;
+                        maxLimit =  2.618;
+                    }
+                    else if(name == "J2"){
+                        minLimit =  0;
+                        maxLimit =  3.14;
+                    }
+                    else if(name == "J3"){
+                        minLimit =  -2.96;
+                        maxLimit =  0;
+
+                    }
+                    else if(name == "J4"){
+                        minLimit =  -1.745;
+                        maxLimit =  1.745;
+
+                    }
+                    else if(name == "J5"){
+                        minLimit =  -1.22;
+                        maxLimit =  1.22;
+
+                    }
+                    else if(name == "J6"){
+                        minLimit =  -2.0944;
+                        maxLimit =  2.0944;
+
+                    }
+                    else if(name == "gripper"){
+                        minLimit =  0;
+                        maxLimit =  1;
+                    }else{
+                        minLimit =  0;
+                        maxLimit =  1;
+                    }
+                    
+                    
+                    const minValueText = document.createElement('span');
+                    minValueText.innerText = minLimit.toFixed(2);
+                    
+                    const currentValue = document.createElement('span');
+                    currentValue.className = 'current-value';
+                    currentValue.id = `${name}_value`;
+                    currentValue.innerText = '0.00';
+                    
+                    const maxValueText = document.createElement('span');
+                    maxValueText.innerText = maxLimit.toFixed(2);
+                    
+                    valueDisplay.appendChild(minValueText);
+                    valueDisplay.appendChild(currentValue);
+                    valueDisplay.appendChild(maxValueText);
+                    
+                    const slider = document.createElement('input');
+                    slider.type = 'range';
+                    slider.min = minLimit;
+                    slider.max = maxLimit;
+                    slider.step = 0.01;
+                    slider.value = 0;
+                    slider.id = `slider_${name}`;
+                    
+                    slider.addEventListener('input', () => {
+                        const value = parseFloat(slider.value);
+                        joint.setJointValue(value);
+                        document.getElementById(`${name}_value`).innerText = value.toFixed(2);
+                        window.robotState.jointValues[name] = value;
+                        
+                        // 如果連接到ROS，發布關節狀態
+                        if (window.robotState.connected && window.publishJointStates) {
+                            window.publishJointStates();
+                        }
+                    });
+                    
+                    div.appendChild(label);
+                    div.appendChild(valueDisplay);
+                    div.appendChild(slider);
+                    
+                    controlDiv.appendChild(div);
+                });
+            }
+            
+			function onResize() {
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setPixelRatio(window.devicePixelRatio);
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+			}
+
+			function render() {
+				requestAnimationFrame(render);
+                if (controls.enableDamping) {
+                    controls.update();
+                }
+				renderer.render(scene, camera);
+			}
+		</script>
+        
+        <!-- 添加ROS相關功能 -->
+        <script src="roslib.min.js"></script>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/roslib/build/roslib.min.js"></script> -->
+
+        <script>
+            // 初始化ROS連接
+            function initROS() {
+                if (typeof ROSLIB === 'undefined') {
+                    console.error("ROSLIB未加載，無法連接到ROS");
+                    return;
+                }
+                
+                ros = new ROSLIB.Ros({ url: 'ws://192.168.1.125:9090' });
+                
+                ros.on('connection', () => {
+                    console.log('已連接到ROSBridge');
+                    document.getElementById('connection-status').className = 'status-dot status-connected';
+                    document.getElementById('connection-text').innerText = '已連接';
+                    window.robotState.connected = true;
+                    
+                    // 設置相機流
+                    setupCameraStream();
+                    
+                    // 訂閱關節狀態
+                    subscribeToJointStates();
+                    
+                    //訂閱目標TF
+                    subscribeToObjectPosition();
+
+                    // 訂閱末端座標姿態
+                    subscribeToEndPose();
+
+                    // 调试末端姿态话题
+                    debugEndPoseTopic();
+
+                   
+                });
+                
+                ros.on('error', error => {
+                    console.error('連接錯誤:', error);
+                    document.getElementById('connection-status').className = 'status-dot status-disconnected';
+                    document.getElementById('connection-text').innerText = '連接錯誤';
+                    window.robotState.connected = false;
+                });
+                
+                ros.on('close', () => {
+                    console.log('連接已關閉');
+                    document.getElementById('connection-status').className = 'status-dot status-disconnected';
+                    document.getElementById('connection-text').innerText = '已斷開';
+                    window.robotState.connected = false;
+                });
+            }
+            
+            // 設置相機流
+            function setupCameraStream() {
+                const cameraFeed = document.getElementById('camera-feed');
+                //cameraFeed.src = 'http://192.168.3.125:8080/stream?topic=/camera/color/image_raw';
+                cameraFeed.src = 'http://192.168.1.125:8080/stream?topic=/yolo/detect_img';
+                cameraFeed.onerror = () => {
+                    console.error('載入相機流時出錯');
+                    cameraFeed.alt = '相機流不可用';
+                    cameraFeed.src = '';
+                    
+                    // 5秒後重試
+                    setTimeout(setupCameraStream, 5000);
+                };
+            }
+            
+            // 訂閱關節狀態
+            function subscribeToJointStates() {
+                if (!ros) return;
+                
+                const jointListener = new ROSLIB.Topic({
+                    ros: ros,
+                    name: '/joint_states',
+                    messageType: 'sensor_msgs/JointState'
+                });
+                
+                jointListener.subscribe(msg => {
+                    msg.name.forEach((name, i) => {
+                        const val = msg.position[i];
+                        const joint = window.robot?.joints[name];
+                        const slider = document.getElementById(`slider_${name}`);
+                        const valueText = document.getElementById(`${name}_value`);
+                        
+                        if (joint) {
+                            joint.setJointValue(val);
+                            window.robotState.jointValues[name] = val;
+                        }
+                        
+                        if (slider) slider.value = val;
+                        if (valueText) valueText.innerText = val.toFixed(2);
+                    });
+                });
+            }
+            
+            // 發布關節狀態
+            window.publishJointStates = function() {
+                if (!ros || !window.robotState.connected) return;
+                
+                const jointNames = Object.keys(window.robotState.jointValues);
+                const positions = jointNames.map(name => window.robotState.jointValues[name]);
+                
+                const jointPublisher = new ROSLIB.Topic({
+                    ros: ros,
+                    name: '/joint_custom_state',
+                    messageType: 'sensor_msgs/JointState'
+                });
+                
+                const msg = new ROSLIB.Message({
+                    header: {
+                        stamp: {
+                            sec: 0,
+                            nanosec: 0
+                        },
+                        frame_id: ''
+                    },
+                    name: jointNames,
+                    position: positions,
+                    velocity: [],
+                    effort: []
+                });
+                
+                jointPublisher.publish(msg);
+            };
+
+            // 訂閱物體TF座標
+            function subscribeToObjectPosition() {
+                if (!ros || !window.robotState.connected) {
+                    console.error('ROS连接未建立，无法订阅话题');
+                    return;
+                }
+                
+                // 这里订阅您发布TF信息的话题
+                // 根据您的情况修改话题名称和消息类型
+                const positionTopic = new ROSLIB.Topic({
+                    ros: ros,
+                    name: '/object_in_frame', // 替换为您实际的话题名称
+                    messageType: 'geometry_msgs/TransformStamped' // 或者您使用的消息类型
+                });
+                
+                console.log('正在订阅物体位置话题:', positionTopic.name);
+                
+                positionTopic.subscribe(function(message) {
+                    console.log('收到物体位置消息:', message);
+                    
+                    try {
+                        // 从消息中提取位置信息
+                        // 根据您的消息类型调整这个部分
+                        const position = {
+                            x: message.transform.translation.x,
+                            y: message.transform.translation.z,
+                            z: message.transform.translation.y*-1
+                        };
+                        
+                        // 更新3D场景中的标记
+                        updateObjectPosition(position);
+                        
+                        // 显示通知
+                        if (typeof showNotification === 'function') {
+                            showNotification(`檢測到物體位置：X=${position.x.toFixed(2)}, Y=${position.y.toFixed(2)}, Z=${position.z.toFixed(2)}`);
+                        }
+                    } catch (error) {
+                        console.error('處理位置消息時出錯:', error);
+                    }
+                });
+                
+                console.log('已訂閱物體位置');
+            }
+
+            // 2. 訂閱末端姿態話題
+            function subscribeToEndPose() {
+                if (!window.ros || !window.robotState.connected) {
+                    console.error("ROS 未連接，無法訂閱末端姿態");
+                    return;
+                }
+                
+                // 添加日志以便调试
+                console.log("開始訂閱末端姿態話題 /end_pose");
+                
+                // 使用正确的消息类型 - 根据ROS2输出调整
+                const poseListener = new ROSLIB.Topic({
+                    ros: window.ros,
+                    name: '/end_pose',
+                    messageType: 'geometry_msgs/Pose' // 确认此处消息类型是否正确
+                });
+                
+                poseListener.subscribe(function(msg) {
+                    // 添加更详细的日志以便调试
+                    console.log("收到末端姿态消息:", JSON.stringify(msg));
+                    
+                    try {
+                        // 添加错误检查，确保消息格式正确
+                        if (!msg) {
+                            throw new Error("接收到空消息");
+                        }
+                        
+                        // 检查消息是否包含position字段
+                        if (!msg.position) {
+                            console.warn("消息不包含position字段:", msg);
+                            
+                            // 尝试检查消息是否有替代结构
+                            if (msg.pose && msg.pose.position) {
+                                console.log("使用替代消息結構 msg.pose.position");
+                                msg = msg.pose;
+                            } else {
+                                throw new Error("消息格式錯誤，找不到position字段");
+                            }
+                        }
+                        
+                        // 更新位置数据，添加更多错误检查
+                        window.robotState.endPose.position.x = parseFloat(((msg.position.x * 1000) || 0).toFixed(4));
+                        window.robotState.endPose.position.y = parseFloat(((msg.position.y * 1000) || 0).toFixed(4));
+                        window.robotState.endPose.position.z = parseFloat(((msg.position.z * 1000) || 0).toFixed(4));
+                        
+                        // 检查orientation字段
+                        if (!msg.orientation) {
+                            console.warn("消息不包含orientation字段，使用默認值");
+                            updateEndPoseDisplay();
+                            return;
+                        }
+                        
+                        // 从四元数计算欧拉角
+                        const qx = msg.orientation.x || 0;
+                        const qy = msg.orientation.y || 0;
+                        const qz = msg.orientation.z || 0;
+                        const qw = msg.orientation.w || 1; // 默认为1，代表无旋转
+                        // 计算欧拉角
+                        // Roll (rx)
+                        const sinr_cosp = 2 * (qw * qx + qy * qz);
+                        const cosr_cosp = 1 - 2 * (qx * qx + qy * qy);
+                        const rx = Math.atan2(sinr_cosp, cosr_cosp);
+                        
+                        // Pitch (ry)
+                        const sinp = 2 * (qw * qy - qz * qx);
+                        let ry;
+                        if (Math.abs(sinp) >= 1) {
+                            ry = (sinp >= 0 ? 1 : -1) * Math.PI / 2;
+                        } else {
+                            ry = Math.asin(sinp);
+                        }
+                        
+                        // Yaw (rz)
+                        const siny_cosp = 2 * (qw * qz + qx * qy);
+                        const cosy_cosp = 1 - 2 * (qy * qy + qz * qz);
+                        const rz = Math.atan2(siny_cosp, cosy_cosp);
+                        
+                        // 更新姿态数据（欧拉角，单位：弧度）
+                        window.robotState.endPose.orientation.x = parseFloat((rx * (180 / Math.PI)).toFixed(4));
+                        window.robotState.endPose.orientation.y = parseFloat((ry * (180 / Math.PI)).toFixed(4));
+                        window.robotState.endPose.orientation.z = parseFloat((rz * (180 / Math.PI)).toFixed(4));
+                        
+                        // 更新界面显示
+                        updateEndPoseDisplay();
+                        
+                    } catch (error) {
+                        console.error("處理末端姿態消息時出錯:", error.message);
+                        console.error("收到的消息內容:", msg);
+                    }
+                });
+                
+                console.log('已訂閱末端姿態話題：/end_pose');
+            }
+
+            // 3. 更新末端姿態顯示
+            function updateEndPoseDisplay() {
+                try {
+                    // 检查元素是否存在
+                    if (!document.getElementById('pose-x') || 
+                        !document.getElementById('pose-y') || 
+                        !document.getElementById('pose-z') || 
+                        !document.getElementById('pose-rx') || 
+                        !document.getElementById('pose-ry') || 
+                        !document.getElementById('pose-rz')) {
+                        console.warn("末端姿態顯示元素未找到，請確保添加了對應的HTML");
+                        return;
+                    }
+                    
+                    // 更新位置显示
+                    document.getElementById('pose-x').innerText = window.robotState.endPose.position.x.toFixed(2)+" mm";
+                    document.getElementById('pose-y').innerText = window.robotState.endPose.position.y.toFixed(2)+" mm";
+                    document.getElementById('pose-z').innerText = window.robotState.endPose.position.z.toFixed(2)+" mm";
+                    
+                    // 更新姿态显示 (弧度)
+                    document.getElementById('pose-rx').innerText = window.robotState.endPose.orientation.x.toFixed(2)+"°";
+                    document.getElementById('pose-ry').innerText = window.robotState.endPose.orientation.y.toFixed(2)+"°";
+                    document.getElementById('pose-rz').innerText = window.robotState.endPose.orientation.z.toFixed(2)+"°";
+                } catch (error) {
+                    console.error("更新末端姿态显示时出错:", error.message);
+                }
+            }
+
+            // 4. 提供一个函数来检查和调试话题的消息类型
+
+            function debugEndPoseTopic() {
+                if (!window.ros || !window.robotState.connected) {
+                    console.error("ROS 未连接，无法調用話題");
+                    return;
+                }
+                
+                // 获取话题信息
+                ros.getTopics(function(topics) {
+                    console.log("可用的話題列表:", topics);
+                    
+                    if (topics.indexOf('/end_pose') >= 0) {
+                        console.log("找到 /end_pose 话题");
+                        
+                        // 获取话题消息类型
+                        ros.getTopicType('/end_pose', function(type) {
+                            console.log("/end_pose 話題的消息類型:", type);
+                            
+                            // 显示通知给用户
+                            if (typeof showNotification === 'function') {
+                                showNotification(`末端姿態話題消息類型: ${type}`);
+                            }
+                        });
+                    } else {
+                        console.warn("未找到 /end_pose 話題，請檢查ROS系统");
+                        
+                        // 显示通知给用户
+                        if (typeof showNotification === 'function') {
+                            showNotification("未找到末端姿態話題，請檢查ROS系统", true);
+                        }
+                    }
+                });
+            }
+
+
+            // 調用ROS服務
+            function callService(command) {
+                if (!ros || !window.robotState.connected) {
+                    showNotification("未連接到ROS服務", true);
+                    return;
+                }
+                
+                const service = new ROSLIB.Service({
+                    ros: ros,
+                    name: `/${command}`,
+                    serviceType: 'std_srvs/Trigger'
+                });
+                
+                const request = new ROSLIB.ServiceRequest({});
+                
+                showNotification(`正在調用服務: ${command}...`);
+                
+                service.callService(request, result => {
+                    console.log(`${command} 結果:`, result);
+                    
+                    if (result.success) {
+                        showNotification(`服務調用成功: ${result.message}`);
+                    } else {
+                        showNotification(`服務調用失敗: ${result.message}`, true);
+                    }
+                }, error => {
+                    console.error(`${command} 服務調用錯誤:`, error);
+                    showNotification(`服務調用錯誤: ${command}`, true);
+                });
+            }
+            
+            // 應用預設位置
+            function applyPreset(presetIndex) {
+                const presets = [
+                    [0, 0, 0, 0, 0, 0,0],                  // 原點
+                    [0, 0.10, -1.03, -0.03, 1.05, 0,0],             // 工作位置
+                    [-1.03, 1.35, -0.64, 0.91, -0.61, -0.73,0]            // 運輸位置
+                ];
+                
+                if (presetIndex < 0 || presetIndex >= presets.length) {
+                    console.error("無效的預設索引");
+                    return;
+                }
+                
+                const jointNames = ['J1', 'J2', 'J3', 'J4', 'J5', 'J6','gripper'];
+                const preset = presets[presetIndex];
+                
+                jointNames.forEach((name, i) => {
+                    const joint = window.robot?.joints[name];
+                    const slider = document.getElementById(`slider_${name}`);
+                    const valueText = document.getElementById(`${name}_value`);
+                    const value = preset[i];
+                    
+                    if (joint) {
+                        joint.setJointValue(value);
+                        window.robotState.jointValues[name] = value;
+                    }
+                    
+                    if (slider) slider.value = value;
+                    if (valueText) valueText.innerText = value.toFixed(2);
+                });
+                
+                // 如果連接到ROS，發布關節狀態
+                if (window.robotState.connected && window.publishJointStates) {
+                    window.publishJointStates();
+                }
+                
+                showNotification("已應用預設位置");
+            }
+            
+            // 顯示通知
+            function showNotification(message, isError = false) {
+                // 移除現有通知
+                const existingNotifications = document.querySelectorAll('.notification');
+                existingNotifications.forEach(notification => {
+                    notification.parentNode.removeChild(notification);
+                });
+                
+                const notification = document.createElement('div');
+                notification.className = isError ? 'notification notification-error' : 'notification notification-success';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                // 淡入
+                setTimeout(() => {
+                    notification.style.opacity = '1';
+                    notification.style.transform = 'translateX(-50%)';
+                }, 10);
+                
+                // 3秒後淡出
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(-50%) translateY(20px)';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+            
+            // 切換面板顯示（響應式設計）
+            function togglePanel(panelId) {
+                const panel = document.getElementById(panelId);
+                
+                // 如果不是移動視圖，不做任何操作
+                if (!isMobileView) return;
+                
+                // 如果面板已經顯示，則隱藏它
+                if (panel.classList.contains('show-panel')) {
+                    panel.classList.remove('show-panel');
+                    currentPanel = null;
+                    return;
+                }
+                
+                // 隱藏所有其他面板
+                const allPanels = document.querySelectorAll('.control-panel');
+                allPanels.forEach(p => {
+                    p.classList.remove('show-panel');
+                    p.classList.remove('fullscreen-panel');
+                });
+                
+                // 顯示選擇的面板
+                panel.classList.add('show-panel');
+                currentPanel = panelId;
+            }
+            
+            // 全屏顯示面板
+            function setFullscreenPanel(panelId) {
+                const panel = document.getElementById(panelId);
+                
+                if (!panel) return;
+                
+                // 添加全屏類
+                panel.classList.add('fullscreen-panel');
+            }
+            
+            // 關閉全屏面板
+            function closeFullscreenPanel(panelId) {
+                const panel = document.getElementById(panelId);
+                
+                if (!panel) return;
+                
+                // 移除全屏類
+                panel.classList.remove('fullscreen-panel');
+            }
+            
+            // 顯示/隱藏所有面板（響應於主菜單按鈕）
+            function toggleAllPanels() {
+                // 如果當前有面板顯示，則隱藏所有面板
+                if (currentPanel) {
+                    const allPanels = document.querySelectorAll('.control-panel');
+                    allPanels.forEach(panel => {
+                        panel.classList.remove('show-panel');
+                        panel.classList.remove('fullscreen-panel');
+                    });
+                    currentPanel = null;
+                    return;
+                }
+                
+                // 否則，顯示第一個面板（關節控制）
+                togglePanel('joint-panel');
+            }
+            
+            // 在頁面加載後，提示用戶如何控制視圖
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    showNotification("提示：使用滑鼠左鍵或觸摸拖動旋轉視圖，滾輪或雙指縮放");
+                }, 2000);
+                if (document.getElementById('pose-x')) {
+                    console.log("初始化末端姿態監視器...");
+                    
+                    // 调试按钮（如果需要）
+                    const debugBtn = document.getElementById('debug-pose-topic');
+                    if (debugBtn) {
+                        debugBtn.addEventListener('click', debugEndPoseTopic);
+                    }
+                    
+                    // 初始化显示和订阅
+                    updateEndPoseDisplay();
+                    
+                    // 如果ROS已连接，则订阅话题
+                    if (window.robotState && window.robotState.connected) {
+                        subscribeToEndPose();
+                    }
+                } else {
+                    console.warn('末端姿態顯示元素未找到，請確保添加了對應的HTML');
+                }
+
+            });
+        </script>
+    </head>
+    <body>
+        <div class="main-container">
+            <!-- 3D視圖容器 -->
+            <div id="viewer-container"></div>
+            
+            <!-- 面板容器 -->
+            <div class="panels-container">
+                <!-- 左側控制面板 - 關節控制 -->
+                <div id="joint-panel" class="control-panel">
+
+                    
+                    <div class="panel-header">
+                        <span>機器人關節控制</span>
+                        <button class="collapse-btn" onclick="togglePanel('joint-panel')">×</button>
+                    </div>
+                    <div class="status-indicator">
+                        <div id="connection-status" class="status-dot status-disconnected"></div>
+                        <span id="connection-text" class="status-text">連接中...</span>
+                    </div>
+                    <div id="joint-controls">
+                        <!-- 關節控制器會動態生成 -->
+                    </div>
+                </div>
+                <!-- 复制此HTML片段并添加到您的<div class="panels-container">中 -->
+                
+                <!-- 右側面板 - 服務按鈕和相機視圖 -->
+                <div id="command-panel" class="control-panel">
+                    <div class="panel-header">
+                        <span>指令控制</span>
+                        <button class="collapse-btn" onclick="togglePanel('command-panel')">×</button>
+                    </div>
+                    <div class="button-group">
+                        <button class="control-button" onclick="callService('reset_pose')">重置姿態</button>
+                        <button class="control-button" onclick="callService('home_position')">回到原點</button>
+                        <button class="control-button" onclick="callService('open_gripper')">打開夾爪</button>
+                        <button class="control-button" onclick="callService('close_gripper')">關閉夾爪</button>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="control-button" onclick="callService('trigger_plan')">開始軌跡</button>
+                        <button class="control-button" onclick="callService('stop_trajectory')">停止軌跡</button>
+                        <button class="control-button emergency-button" onclick="callService('emergency_stop')">緊急停止</button>
+                    </div>
+                    <div class="button-group">
+                        <button class="control-button" onclick="toggleObjectMarker()">顯示/隱藏物體標記</button>
+                    </div>
+                    <div class="panel-header">
+                        <span>相機畫面</span>
+                        <button class="collapse-btn" onclick="setFullscreenPanel('command-panel')">⤢</button>
+                    </div>
+                    <div class="camera-container">
+                        <img id="camera-feed" alt="相機畫面載入中...">
+                    </div>
+
+                    
+                        <div class="panel-header">
+                            <span>末端姿態數據</span>
+                            <button class="collapse-btn" onclick="togglePanel('pose-panel')">×</button>
+                        </div>
+                        <div class="end-pose-grid">
+                            <!-- 位置信息 -->
+                            <div class="pose-value">
+                                <div class="pose-label">X (位置)</div>
+                                <div class="pose-number" id="pose-x">0.0000 </div>
+                            </div>
+                            <div class="pose-value">
+                                <div class="pose-label">Y (位置)</div>
+                                <div class="pose-number" id="pose-y">0.0000 </div>
+                            </div>
+                            <div class="pose-value">
+                                <div class="pose-label">Z (位置)</div>
+                                <div class="pose-number" id="pose-z">0.0000 </div>
+                            </div>
+                            
+                            <!-- 姿态信息 (欧拉角) -->
+                            <div class="pose-value">
+                                <div class="pose-label">RX (姿態)</div>
+                                <div class="pose-number" id="pose-rx">0.0000 </div>
+                            </div>
+                            <div class="pose-value">
+                                <div class="pose-label">RY (姿態)</div>
+                                <div class="pose-number" id="pose-ry">0.0000 </div>
+                            </div>
+                            <div class="pose-value">
+                                <div class="pose-label">RZ (姿態)</div>
+                                <div class="pose-number" id="pose-rz">0.0000</div>
+                            </div>
+                        </div>
+                    
+                    
+                </div>
+                
+            </div>
+            
+            <!-- 移動設備菜單按鈕 -->
+            <button class="mobile-menu-button" onclick="toggleAllPanels()">控制選單</button>
+        </div>
+        
+        <!-- 屏幕尺寸指示器（調試用） -->
+        <div id="screen-size" class="screen-size-indicator"></div>
+        
+        <!-- 屏幕方向提示 -->
+        <div class="orientation-message">
+            <div>
+                <div class="orientation-icon">⟳</div>
+                <h3>請將設備旋轉到橫向模式</h3>
+                <p>為獲得最佳體驗，建議使用橫向模式</p>
+            </div>
+        </div>
+    </body>
+</html>

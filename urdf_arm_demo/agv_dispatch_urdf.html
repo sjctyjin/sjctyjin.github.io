@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧工廠 AGV 派車系統 - ROS2 Demo (URDF版)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #control-panel {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            color: #764ba2;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .agv-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .agv-item.active {
+            border-left-color: #28a745;
+            background: #e8f5e9;
+        }
+
+        .agv-item.busy {
+            border-left-color: #ffc107;
+            background: #fff8e1;
+        }
+
+        .agv-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-idle { background: #28a745; }
+        .status-busy { background: #ffc107; }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin: 5px 0;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .task-item {
+            background: #e3f2fd;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 12px;
+            border-left: 3px solid #2196f3;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 250px;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+	    <script src="./src/three.min.js"></script>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas-container">
+            <div id="info">
+                <strong>🏭 智慧工廠 AGV 系統</strong><br>
+                <span style="font-size: 10px; color: #666;">基於 ROS2 架構 + URDF模型</span>
+            </div>
+        </div>
+
+        <div id="control-panel">
+            <h1>🚗 AGV 派車系統</h1>
+            <div class="subtitle">ROS2 智慧調度平台</div>
+
+            <div class="section">
+                <h2>📊 系統狀態</h2>
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="total-agv">5</div>
+                        <div class="stat-label">總車輛數</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="active-tasks">0</div>
+                        <div class="stat-label">執行中任務</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="completed-tasks">0</div>
+                        <div class="stat-label">完成任務</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="idle-agv">5</div>
+                        <div class="stat-label">閒置車輛</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚙 車輛狀態</h2>
+                <div id="agv-list"></div>
+            </div>
+
+            <div class="section">
+                <h2>📋 派車控制</h2>
+                <select id="agv-select">
+                    <option value="">選擇車輛</option>
+</select>
+                <select id="destination-select">
+                    <option value="">選擇目的地</option>
+                    <option value="station1">工作站 A</option>
+                    <option value="station2">工作站 B</option>
+                    <option value="station3">工作站 C</option>
+                    <option value="storage1">倉儲區 1</option>
+                    <option value="storage2">倉儲區 2</option>
+                    <option value="charging1">充電站 1</option>
+                    <option value="charging2">充電站 2</option>
+                </select>
+                <button onclick="dispatchTask()">🚀 派發任務</button>
+                <button onclick="autoDispatch()">🤖 自動派車</button>
+                <button onclick="emergencyStop()">🛑 緊急停止</button>
+            </div>
+
+            <div class="section">
+                <h2>📝 任務佇列</h2>
+                <div id="task-queue">
+                    <div style="color: #999; text-align: center; padding: 20px;">暫無任務</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚙️ 系統控制</h2>
+                <button onclick="resetAll()">🔄 重置系統</button>
+                <button onclick="toggleAnimation()">⏸️ 暫停/繼續</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <div>正在載入 URDF 模型...</div>
+    </div>
+
+    <!-- Three.js importmap -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "./build/three.module.js",
+            "three/addons/": "./examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        // 導入所有需要的THREE模組（包括Group！）
+        import {
+            Scene,
+            PerspectiveCamera,
+            WebGLRenderer,
+            DirectionalLight,
+            AmbientLight,
+            Mesh,
+            PlaneGeometry,
+            ShadowMaterial,
+            Color,
+            sRGBEncoding,
+            PCFSoftShadowMap,
+            Box3,
+            Vector3,
+            CylinderGeometry,
+            BoxGeometry,
+            MeshStandardMaterial,
+            GridHelper,
+            LoadingManager,
+			SphereGeometry,
+            Group  // ← 重點！加上 Group
+        } from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import URDFLoader from 'three/addons/loaders/URDFLoader.js';
+
+        // ========== 全域變數 ==========
+        let scene, camera, renderer, controls;
+        let agvs = [];
+        let stations = [];
+        let tasks = [];
+        let completedTasks = 0;
+        let isAnimating = true;
+        let autoDispatchInterval = null;
+        let urdfTemplate = null;
+
+        // AGV 配置
+        const AGV_CONFIG = {
+            count: 5,
+            speed: 0.05,
+            urdfPath: 'examples/models/urdf/urdf3/trip_piper_car.urdf'
+        };
+
+        // 工廠配置
+        const FACTORY_CONFIG = {
+            size: 50,
+            stations: [
+                { id: 'station1', name: '工作站 A', pos: [-15, 0, -15], color: 0x2196f3 },
+                { id: 'station2', name: '工作站 B', pos: [15, 0, -15], color: 0x2196f3 },
+                { id: 'station3', name: '工作站 C', pos: [0, 0, -20], color: 0x2196f3 },
+                { id: 'storage1', name: '倉儲區 1', pos: [-15, 0, 15], color: 0xff9800 },
+                { id: 'storage2', name: '倉儲區 2', pos: [15, 0, 15], color: 0xff9800 },
+                { id: 'charging1', name: '充電站 1', pos: [-20, 0, 0], color: 0x4caf50 },
+                { id: 'charging2', name: '充電站 2', pos: [20, 0, 0], color: 0x4caf50 }
+            ]
+        };
+
+        // ========== 初始化場景 ==========
+        function init() {
+            console.log('初始化場景...');
+            
+            // 建立場景
+            scene = new Scene();
+            scene.background = new Color(0x263238);
+
+            // 建立相機
+            camera = new PerspectiveCamera(
+                60,
+                (window.innerWidth - 350) / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(30, 30, 30);
+            camera.lookAt(0, 0, 0);
+
+            // 建立渲染器
+            renderer = new WebGLRenderer({ antialias: true });
+            renderer.outputEncoding = sRGBEncoding;
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = PCFSoftShadowMap;
+            renderer.setSize(window.innerWidth - 350, window.innerHeight);
+            
+            const viewerContainer = document.getElementById('canvas-container');
+            viewerContainer.appendChild(renderer.domElement);
+            console.log('✓ 渲染器已添加');
+
+            // 光源
+            const directionalLight = new DirectionalLight(0xffffff, 1.0);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.setScalar(1024);
+            directionalLight.position.set(10, 20, 10);
+            directionalLight.shadow.camera.left = -30;
+            directionalLight.shadow.camera.right = 30;
+            directionalLight.shadow.camera.top = 30;
+            directionalLight.shadow.camera.bottom = -30;
+            scene.add(directionalLight);
+
+            const ambientLight = new AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+            console.log('✓ 光源已添加');
+
+            // 地板
+            const ground = new Mesh(
+                new PlaneGeometry(100, 100), 
+                new ShadowMaterial({ opacity: 1.0 })
+            );
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            console.log('✓ 地板已添加');
+
+            // 網格線
+            const gridHelper = new GridHelper(FACTORY_CONFIG.size, 25, 0x888888, 0xdddddd);
+			gridHelper.position.y = -0.7;  // ← 加這行！數字越小網格越低
+
+            scene.add(gridHelper);
+            console.log('✓ 網格已添加');
+
+            // 軌道控制
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2.2;
+            controls.minDistance = 5;
+            controls.target.set(0, 0, 0);
+            controls.update();
+            console.log('✓ 控制器已設置');
+
+            // 建立工作站
+            createStations();
+
+            // 載入URDF
+            loadURDFAndCreateAGVs();
+
+            // 視窗大小調整
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        // ========== 載入URDF ==========
+        function loadURDFAndCreateAGVs() {
+            console.log('開始載入URDF...');
+            const manager = new LoadingManager();
+            const loader = new URDFLoader(manager);
+            
+            loader.load(
+                AGV_CONFIG.urdfPath,
+                result => {
+                    urdfTemplate = result;
+                    window.robot = result;
+                    console.log("✓ URDF模型載入成功");
+                }
+            );
+
+            manager.onLoad = () => {
+                console.log('✓ 所有資源載入完成');
+                createAGVsFromURDF();
+                document.getElementById('loading').style.display = 'none';
+                updateUI();
+                animate();
+            };
+        }
+
+        // ========== 從URDF創建AGV ==========
+function createAGVsFromURDF() {
+    if (!urdfTemplate) {
+        console.error('❌ URDF模板不存在!');
+        return;
+    }
+
+    console.log(`創建 ${AGV_CONFIG.count} 台AGV...`);
+
+    for (let i = 0; i < AGV_CONFIG.count; i++) {
+        // 克隆URDF模型
+        const agvModel = urdfTemplate.clone();
+        
+        // 調整旋轉
+        agvModel.rotation.x = Math.PI / 2;
+        agvModel.rotation.x *= (-1);
+        agvModel.scale.set(3, 3, 3);
+        
+        // 設置陰影
+        agvModel.traverse(c => {
+            c.castShadow = true;
+            c.receiveShadow = true;
+        });
+
+        // 計算邊界框並調整位置
+        agvModel.updateMatrixWorld(true);
+        const bb = new Box3();
+        bb.setFromObject(agvModel);
+        agvModel.position.y -= bb.min.y;  // ← 這個保留在agvModel上
+        
+        // 包在Group裡
+        const agvContainer = new Group();
+        agvContainer.add(agvModel);
+
+		// ← 加入狀態指示燈
+		const lightGeometry = new SphereGeometry(0.3, 16, 16);  // ← 去掉THREE.
+		const lightMaterial = new MeshStandardMaterial({  // ← 去掉THREE.
+			color: 0x00ff00,
+			emissive: 0x00ff00,
+			emissiveIntensity: 1.5
+		});
+		const statusLight = new Mesh(lightGeometry, lightMaterial);  // ← 去掉THREE.
+		statusLight.position.set(0, 2, 0);  // 放在車子上方2單位高的位置
+		agvContainer.add(statusLight);
+        
+        // 初始位置設定在Container上
+        const startX = -20 + (i * 5);
+        agvContainer.position.set(startX, 0, 20);  // ← Container的位置
+        
+        console.log(`✓ AGV-${i+1} 已創建`);
+        
+        // 創建AGV對象
+		const agv = {
+			id: `AGV-${i + 1}`,
+			object: agvContainer,
+			model: agvModel,
+			statusLight: statusLight,  // ← 加這行！
+			status: 'idle',
+			target: null,
+			path: [],
+			currentTask: null,
+			battery: 100
+		};
+        agvs.push(agv);
+        scene.add(agvContainer);
+    }
+    
+    console.log(`✓✓ 完成! 總共 ${agvs.length} 台AGV`);
+}
+
+        // ========== 建立工作站（修正！使用Group而非THREE.Group） ==========
+        function createStations() {
+            console.log('創建工作站...');
+            FACTORY_CONFIG.stations.forEach(config => {
+                const group = new Group();  // ← 修正！使用導入的Group
+
+                // 底座
+                const baseGeometry = new CylinderGeometry(2, 2.5, 0.5, 8);
+                const baseMaterial = new MeshStandardMaterial({ 
+                    color: config.color,
+                    roughness: 0.5,
+                    metalness: 0.3
+                });
+                const base = new Mesh(baseGeometry, baseMaterial);
+                base.castShadow = true;
+                base.receiveShadow = true;
+                group.add(base);
+
+                // 柱子
+                const pillarGeometry = new CylinderGeometry(0.3, 0.3, 3, 8);
+                const pillar = new Mesh(pillarGeometry, baseMaterial);
+                pillar.position.y = 2;
+                pillar.castShadow = true;
+                group.add(pillar);
+
+                // 標誌
+                const signGeometry = new BoxGeometry(2, 1, 0.2);
+                const signMaterial = new MeshStandardMaterial({ 
+                    color: 0xffffff,
+                    roughness: 0.3
+                });
+                const sign = new Mesh(signGeometry, signMaterial);
+                sign.position.y = 3.8;
+                sign.castShadow = true;
+                group.add(sign);
+
+                group.position.set(...config.pos);
+                scene.add(group);
+
+                stations.push({
+                    id: config.id,
+                    name: config.name,
+                    position: new Vector3(...config.pos),
+                    object: group
+                });
+            });
+            console.log(`✓ ${stations.length} 個工作站已創建`);
+        }
+
+        // ========== 路徑規劃 ==========
+        function planPath(start, end) {
+            return [
+                start.clone(),
+                new Vector3(start.x, start.y, end.z),
+                end.clone()
+            ];
+        }
+
+        // ========== 派發任務 ==========
+        window.dispatchTask = function() {
+            const agvSelect = document.getElementById('agv-select');
+            const destSelect = document.getElementById('destination-select');
+
+            if (!agvSelect.value || !destSelect.value) {
+                alert('請選擇車輛和目的地');
+                return;
+            }
+
+            const agv = agvs.find(a => a.id === agvSelect.value);
+            const station = stations.find(s => s.id === destSelect.value);
+
+            if (agv.status !== 'idle') {
+                alert('該車輛正在執行任務');
+                return;
+            }
+
+            const task = {
+                id: `TASK-${Date.now()}`,
+                agvId: agv.id,
+                destination: station.name,
+                status: 'executing',
+                startTime: new Date()
+            };
+
+            agv.status = 'busy';
+			agv.currentTask = task;
+			agv.target = station.position.clone();
+			agv.target.y = agv.object.position.y;
+			agv.path = planPath(agv.object.position, agv.target);
+
+			// ← 改成黃燈
+			agv.statusLight.material.color.setHex(0xffff00);
+			agv.statusLight.material.emissive.setHex(0xffff00);
+
+            tasks.push(task);
+            updateUI();
+            console.log(`派發: ${agv.id} → ${station.name}`);
+        }
+
+        // ========== 自動派車 ==========
+        window.autoDispatch = function() {
+            if (autoDispatchInterval) {
+                clearInterval(autoDispatchInterval);
+                autoDispatchInterval = null;
+                console.log('停止自動派車');
+                return;
+            }
+
+            console.log('啟動自動派車');
+            autoDispatchInterval = setInterval(() => {
+                const idleAgvs = agvs.filter(a => a.status === 'idle');
+                if (idleAgvs.length === 0) return;
+
+                const agv = idleAgvs[Math.floor(Math.random() * idleAgvs.length)];
+                const station = stations[Math.floor(Math.random() * stations.length)];
+
+                const task = {
+                    id: `TASK-${Date.now()}`,
+                    agvId: agv.id,
+                    destination: station.name,
+                    status: 'executing',
+                    startTime: new Date()
+                };
+
+                agv.status = 'busy';
+				agv.currentTask = task;
+				agv.target = station.position.clone();
+				agv.target.y = agv.object.position.y;
+				agv.path = planPath(agv.object.position, agv.target);
+
+				// ← 改成黃燈
+				agv.statusLight.material.color.setHex(0xffff00);
+				agv.statusLight.material.emissive.setHex(0xffff00);
+
+                tasks.push(task);
+                updateUI();
+            }, 3000);
+        }
+
+        // ========== 緊急停止 ==========
+        window.emergencyStop = function() {
+            agvs.forEach(agv => {
+                agv.status = 'idle';
+                agv.target = null;
+                agv.path = [];
+                agv.currentTask = null;
+            });
+            tasks = [];
+            if (autoDispatchInterval) {
+                clearInterval(autoDispatchInterval);
+                autoDispatchInterval = null;
+            }
+            updateUI();
+            console.log('緊急停止所有車輛');
+        }
+
+        // ========== 重置系統 ==========
+        window.resetAll = function() {
+            emergencyStop();
+            completedTasks = 0;
+            agvs.forEach((agv, i) => {
+				const startX = -20 + (i * 5);
+				agv.object.position.set(startX, agv.object.position.y, 20);
+				agv.object.rotation.x = agv.baseRotationX;  // ← 加這行
+				agv.object.rotation.y = 0;
+				agv.object.rotation.z = 0;                  // ← 加這行
+			});
+            updateUI();
+            console.log('系統已重置');
+        }
+
+        // ========== 暫停/繼續 ==========
+        window.toggleAnimation = function() {
+            isAnimating = !isAnimating;
+            console.log(isAnimating ? '繼續動畫' : '暫停動畫');
+        }
+
+        // ========== 更新 AGV 位置 ==========
+        function updateAGVs() {
+			agvs.forEach(agv => {
+				if (agv.status === 'busy' && agv.path && agv.path.length > 0) {
+					const target = agv.path[0];
+					const distance = agv.object.position.distanceTo(target);  // ← 用object.position
+
+					if (distance < 0.5) {
+						agv.path.shift();
+						if (agv.path.length === 0) {
+							agv.status = 'idle';
+							agv.target = null;
+							agv.currentTask = null;
+							
+							// ← 改成綠燈
+							agv.statusLight.material.color.setHex(0x00ff00);
+							agv.statusLight.material.emissive.setHex(0x00ff00);
+							
+							completedTasks++;
+							tasks = tasks.filter(t => t.agvId !== agv.id);
+							updateUI();
+							console.log(`${agv.id} 完成任務`);
+						}
+					} else {
+						// 移動Container
+						const direction = new Vector3()
+							.subVectors(target, agv.object.position)
+							.normalize();
+						
+						agv.object.position.add(direction.multiplyScalar(AGV_CONFIG.speed));
+
+						// 只旋轉Container的Y軸
+						const angle = Math.atan2(direction.x, direction.z);
+						agv.object.rotation.y = angle;  // ← 只改Y軸，URDF內部的X軸不會被影響
+					}
+				}
+			});
+		}
+        // ========== 更新 UI ==========
+        function updateUI() {
+            const idleCount = agvs.filter(a => a.status === 'idle').length;
+            document.getElementById('active-tasks').textContent = tasks.length;
+            document.getElementById('completed-tasks').textContent = completedTasks;
+            document.getElementById('idle-agv').textContent = idleCount;
+
+            const agvList = document.getElementById('agv-list');
+            agvList.innerHTML = agvs.map(agv => `
+                <div class="agv-item ${agv.status === 'idle' ? 'active' : 'busy'}">
+                    <span class="agv-status status-${agv.status}"></span>
+                    <strong>${agv.id}</strong><br>
+                    <small>狀態: ${agv.status === 'idle' ? '閒置' : '執行中'}</small><br>
+                    <small>電量: ${agv.battery}%</small>
+                </div>
+            `).join('');
+
+            const agvSelect = document.getElementById('agv-select');
+            agvSelect.innerHTML = '<option value="">選擇車輛</option>' +
+                agvs.filter(a => a.status === 'idle').map(agv => 
+                    `<option value="${agv.id}">${agv.id}</option>`
+                ).join('');
+
+            const taskQueue = document.getElementById('task-queue');
+            if (tasks.length === 0) {
+                taskQueue.innerHTML = '<div style="color: #999; text-align: center; padding: 20px;">暫無任務</div>';
+            } else {
+                taskQueue.innerHTML = tasks.map(task => `
+                    <div class="task-item">
+                        <strong>${task.id}</strong><br>
+                        車輛: ${task.agvId}<br>
+                        目的地: ${task.destination}
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ========== 動畫循環 ==========
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isAnimating) {
+                updateAGVs();
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // ========== 視窗大小調整 ==========
+        function onWindowResize() {
+            camera.aspect = (window.innerWidth - 350) / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth - 350, window.innerHeight);
+        }
+
+        // ========== 啟動 ==========
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

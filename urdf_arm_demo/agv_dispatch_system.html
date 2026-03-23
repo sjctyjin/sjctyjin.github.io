@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧工廠 AGV 派車系統 - ROS2 Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #control-panel {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            color: #764ba2;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .agv-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .agv-item.active {
+            border-left-color: #28a745;
+            background: #e8f5e9;
+        }
+
+        .agv-item.busy {
+            border-left-color: #ffc107;
+            background: #fff8e1;
+        }
+
+        .agv-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-idle { background: #28a745; }
+        .status-busy { background: #ffc107; }
+        .status-charging { background: #17a2b8; }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin: 5px 0;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .task-queue {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            background: #e3f2fd;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 12px;
+            border-left: 3px solid #2196f3;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 250px;
+        }
+
+        .legend {
+            margin-top: 10px;
+            font-size: 11px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 3px 0;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas-container">
+            <div id="info">
+                <strong>🏭 智慧工廠 AGV 系統</strong><br>
+                <span style="font-size: 10px; color: #666;">基於 ROS2 架構</span>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #2196f3;"></div>
+                        <span>工作站</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4caf50;"></div>
+                        <span>充電站</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff9800;"></div>
+                        <span>倉儲區</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f44336;"></div>
+                        <span>禁止區</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="control-panel">
+            <h1>🚗 AGV 派車系統</h1>
+            <div class="subtitle">ROS2 智慧調度平台</div>
+
+            <div class="section">
+                <h2>📊 系統狀態</h2>
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="total-agv">5</div>
+                        <div class="stat-label">總車輛數</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="active-tasks">0</div>
+                        <div class="stat-label">執行中任務</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="completed-tasks">0</div>
+                        <div class="stat-label">完成任務</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="idle-agv">5</div>
+                        <div class="stat-label">閒置車輛</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚙 車輛狀態</h2>
+                <div id="agv-list"></div>
+            </div>
+
+            <div class="section">
+                <h2>📋 派車控制</h2>
+                <select id="agv-select">
+                    <option value="">選擇車輛</option>
+                </select>
+                <select id="destination-select">
+                    <option value="">選擇目的地</option>
+                    <option value="station1">工作站 A</option>
+                    <option value="station2">工作站 B</option>
+                    <option value="station3">工作站 C</option>
+                    <option value="storage1">倉儲區 1</option>
+                    <option value="storage2">倉儲區 2</option>
+                    <option value="charging1">充電站 1</option>
+                    <option value="charging2">充電站 2</option>
+                </select>
+                <button onclick="dispatchTask()">🚀 派發任務</button>
+                <button onclick="autoDispatch()">🤖 自動派車</button>
+                <button onclick="emergencyStop()">🛑 緊急停止</button>
+            </div>
+
+            <div class="section">
+                <h2>📝 任務佇列</h2>
+                <div class="task-queue" id="task-queue">
+                    <div style="color: #999; text-align: center; padding: 20px;">暫無任務</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚙️ 系統控制</h2>
+                <button onclick="resetAll()">🔄 重置系統</button>
+                <button onclick="toggleAnimation()">⏸️ 暫停/繼續</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <div>正在載入 URDF 模型...</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/ColladaLoader.js"></script>
+
+    <script>
+        // ========== 全域變數 ==========
+        let scene, camera, renderer, controls;
+        let agvs = [];
+        let stations = [];
+        let tasks = [];
+        let completedTasks = 0;
+        let isAnimating = true;
+        let autoDispatchInterval = null;
+
+        // AGV 配置
+        const AGV_CONFIG = {
+            count: 5,
+            speed: 0.05,
+            rotationSpeed: 0.05,
+            colors: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd']
+        };
+
+        // 工廠配置
+        const FACTORY_CONFIG = {
+            size: 50,
+            stations: [
+                { id: 'station1', name: '工作站 A', pos: [-15, 0, -15], color: 0x2196f3 },
+                { id: 'station2', name: '工作站 B', pos: [15, 0, -15], color: 0x2196f3 },
+                { id: 'station3', name: '工作站 C', pos: [0, 0, -20], color: 0x2196f3 },
+                { id: 'storage1', name: '倉儲區 1', pos: [-15, 0, 15], color: 0xff9800 },
+                { id: 'storage2', name: '倉儲區 2', pos: [15, 0, 15], color: 0xff9800 },
+                { id: 'charging1', name: '充電站 1', pos: [-20, 0, 0], color: 0x4caf50 },
+                { id: 'charging2', name: '充電站 2', pos: [20, 0, 0], color: 0x4caf50 }
+            ]
+        };
+
+        // ========== 初始化場景 ==========
+        function init() {
+            // 建立場景
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f0f0);
+            scene.fog = new THREE.Fog(0xf0f0f0, 50, 100);
+
+            // 建立相機
+            camera = new THREE.PerspectiveCamera(
+                60,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(30, 30, 30);
+            camera.lookAt(0, 0, 0);
+
+            // 建立渲染器
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth - 350, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // 軌道控制
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2.2;
+
+            // 光源
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(20, 30, 20);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.camera.left = -30;
+            directionalLight.shadow.camera.right = 30;
+            directionalLight.shadow.camera.top = 30;
+            directionalLight.shadow.camera.bottom = -30;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+
+            // 建立工廠環境
+            createFactory();
+            
+            // 建立 AGV
+            createAGVs();
+            
+            // 建立工作站
+            createStations();
+
+            // 更新 UI
+            updateUI();
+
+            // 隱藏載入畫面
+            document.getElementById('loading').style.display = 'none';
+
+            // 開始動畫
+            animate();
+
+            // 視窗大小調整
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        // ========== 建立工廠環境 ==========
+        function createFactory() {
+            // 地板
+            const floorGeometry = new THREE.PlaneGeometry(FACTORY_CONFIG.size, FACTORY_CONFIG.size);
+            const floorMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xcccccc,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            // 網格線
+            const gridHelper = new THREE.GridHelper(FACTORY_CONFIG.size, 25, 0x888888, 0xdddddd);
+            scene.add(gridHelper);
+
+            // 工廠牆壁
+            const wallMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xe0e0e0,
+                transparent: true,
+                opacity: 0.3
+            });
+
+            // 四面牆
+            const wallHeight = 5;
+            const wallThickness = 0.5;
+            
+            const walls = [
+                { pos: [0, wallHeight/2, -FACTORY_CONFIG.size/2], rot: [0, 0, 0], size: [FACTORY_CONFIG.size, wallHeight, wallThickness] },
+                { pos: [0, wallHeight/2, FACTORY_CONFIG.size/2], rot: [0, 0, 0], size: [FACTORY_CONFIG.size, wallHeight, wallThickness] },
+                { pos: [-FACTORY_CONFIG.size/2, wallHeight/2, 0], rot: [0, Math.PI/2, 0], size: [FACTORY_CONFIG.size, wallHeight, wallThickness] },
+                { pos: [FACTORY_CONFIG.size/2, wallHeight/2, 0], rot: [0, Math.PI/2, 0], size: [FACTORY_CONFIG.size, wallHeight, wallThickness] }
+            ];
+
+            walls.forEach(wall => {
+                const geometry = new THREE.BoxGeometry(...wall.size);
+                const mesh = new THREE.Mesh(geometry, wallMaterial);
+                mesh.position.set(...wall.pos);
+                mesh.rotation.set(...wall.rot);
+                mesh.receiveShadow = true;
+                scene.add(mesh);
+            });
+
+            // 禁止區域（示意）
+            const restrictedGeometry = new THREE.BoxGeometry(8, 0.1, 8);
+            const restrictedMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xff4444,
+                transparent: true,
+                opacity: 0.3
+            });
+            const restricted = new THREE.Mesh(restrictedGeometry, restrictedMaterial);
+            restricted.position.set(0, 0.05, 0);
+            scene.add(restricted);
+        }
+
+        // ========== 建立工作站 ==========
+        function createStations() {
+            FACTORY_CONFIG.stations.forEach(config => {
+                const group = new THREE.Group();
+
+                // 底座
+                const baseGeometry = new THREE.CylinderGeometry(2, 2.5, 0.5, 8);
+                const baseMaterial = new THREE.MeshStandardMaterial({ 
+                    color: config.color,
+                    roughness: 0.5,
+                    metalness: 0.3
+                });
+                const base = new THREE.Mesh(baseGeometry, baseMaterial);
+                base.castShadow = true;
+                base.receiveShadow = true;
+                group.add(base);
+
+                // 柱子
+                const pillarGeometry = new THREE.CylinderGeometry(0.3, 0.3, 3, 8);
+                const pillar = new THREE.Mesh(pillarGeometry, baseMaterial);
+                pillar.position.y = 2;
+                pillar.castShadow = true;
+                group.add(pillar);
+
+                // 標誌
+                const signGeometry = new THREE.BoxGeometry(2, 1, 0.2);
+                const signMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0xffffff,
+                    roughness: 0.3
+                });
+                const sign = new THREE.Mesh(signGeometry, signMaterial);
+                sign.position.y = 3.8;
+                sign.castShadow = true;
+                group.add(sign);
+
+                group.position.set(...config.pos);
+                scene.add(group);
+
+                stations.push({
+                    id: config.id,
+                    name: config.name,
+                    position: new THREE.Vector3(...config.pos),
+                    object: group
+                });
+            });
+        }
+
+        // ========== 建立 AGV ==========
+        function createAGVs() {
+            for (let i = 0; i < AGV_CONFIG.count; i++) {
+                const agv = createSimpleAGV(i);
+                
+                // 初始位置（排成一列）
+                const startX = -20 + (i * 5);
+                agv.object.position.set(startX, 0, 20);
+                
+                agvs.push(agv);
+                scene.add(agv.object);
+            }
+        }
+
+        // ========== 建立簡化 AGV 模型 ==========
+        function createSimpleAGV(id) {
+            const group = new THREE.Group();
+
+            // 車體
+            const bodyGeometry = new THREE.BoxGeometry(2, 0.5, 1.5);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                color: AGV_CONFIG.colors[id % AGV_CONFIG.colors.length],
+                roughness: 0.4,
+                metalness: 0.6
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.5;
+            body.castShadow = true;
+            body.receiveShadow = true;
+            group.add(body);
+
+            // 輪子
+            const wheelGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 16);
+            const wheelMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x333333,
+                roughness: 0.8
+            });
+
+            const wheelPositions = [
+                [-0.7, 0.3, -0.6],
+                [-0.7, 0.3, 0.6],
+                [0.7, 0.3, -0.6],
+                [0.7, 0.3, 0.6]
+            ];
+
+            wheelPositions.forEach(pos => {
+                const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                wheel.position.set(...pos);
+                wheel.rotation.z = Math.PI / 2;
+                wheel.castShadow = true;
+                group.add(wheel);
+            });
+
+            // 頂部指示燈
+            const lightGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+            const lightMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x00ff00,
+                emissive: 0x00ff00,
+                emissiveIntensity: 0.5
+            });
+            const light = new THREE.Mesh(lightGeometry, lightMaterial);
+            light.position.y = 1;
+            group.add(light);
+
+            // 方向指示箭頭
+            const arrowGeometry = new THREE.ConeGeometry(0.3, 0.6, 8);
+            const arrowMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffff00,
+                emissive: 0xffff00,
+                emissiveIntensity: 0.3
+            });
+            const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+            arrow.position.set(1.2, 0.8, 0);
+            arrow.rotation.z = -Math.PI / 2;
+            group.add(arrow);
+
+            return {
+                id: `AGV-${id + 1}`,
+                object: group,
+                status: 'idle',
+                target: null,
+                path: [],
+                currentTask: null,
+                battery: 100,
+                lightMesh: light
+            };
+        }
+
+        // ========== 路徑規劃（簡化版 A*） ==========
+        function planPath(start, end) {
+            // 簡化版：直接返回起點和終點
+            // 實際應用中應該使用 A* 或 RRT 等演算法
+            return [
+                start.clone(),
+                new THREE.Vector3(start.x, 0, end.z),
+                end.clone()
+            ];
+        }
+
+        // ========== 派發任務 ==========
+        function dispatchTask() {
+            const agvSelect = document.getElementById('agv-select');
+            const destSelect = document.getElementById('destination-select');
+
+            if (!agvSelect.value || !destSelect.value) {
+                alert('請選擇車輛和目的地');
+                return;
+            }
+
+            const agv = agvs.find(a => a.id === agvSelect.value);
+            const station = stations.find(s => s.id === destSelect.value);
+
+            if (agv.status !== 'idle') {
+                alert('該車輛正在執行任務');
+                return;
+            }
+
+            const task = {
+                id: `TASK-${Date.now()}`,
+                agvId: agv.id,
+                destination: station.name,
+                status: 'executing',
+                startTime: new Date()
+            };
+
+            agv.status = 'busy';
+            agv.currentTask = task;
+            agv.target = station.position.clone();
+            agv.path = planPath(agv.object.position, agv.target);
+            agv.lightMesh.material.color.setHex(0xffff00);
+            agv.lightMesh.material.emissive.setHex(0xffff00);
+
+            tasks.push(task);
+            updateUI();
+        }
+
+        // ========== 自動派車 ==========
+        function autoDispatch() {
+            if (autoDispatchInterval) {
+                clearInterval(autoDispatchInterval);
+                autoDispatchInterval = null;
+                return;
+            }
+
+            autoDispatchInterval = setInterval(() => {
+                const idleAgvs = agvs.filter(a => a.status === 'idle');
+                if (idleAgvs.length === 0) return;
+
+                const agv = idleAgvs[Math.floor(Math.random() * idleAgvs.length)];
+                const station = stations[Math.floor(Math.random() * stations.length)];
+
+                const task = {
+                    id: `TASK-${Date.now()}`,
+                    agvId: agv.id,
+                    destination: station.name,
+                    status: 'executing',
+                    startTime: new Date()
+                };
+
+                agv.status = 'busy';
+                agv.currentTask = task;
+                agv.target = station.position.clone();
+                agv.path = planPath(agv.object.position, agv.target);
+                agv.lightMesh.material.color.setHex(0xffff00);
+                agv.lightMesh.material.emissive.setHex(0xffff00);
+
+                tasks.push(task);
+                updateUI();
+            }, 3000);
+        }
+
+        // ========== 緊急停止 ==========
+        function emergencyStop() {
+            agvs.forEach(agv => {
+                agv.status = 'idle';
+                agv.target = null;
+                agv.path = [];
+                agv.currentTask = null;
+                agv.lightMesh.material.color.setHex(0xff0000);
+                agv.lightMesh.material.emissive.setHex(0xff0000);
+            });
+            tasks = [];
+            if (autoDispatchInterval) {
+                clearInterval(autoDispatchInterval);
+                autoDispatchInterval = null;
+            }
+            updateUI();
+        }
+
+        // ========== 重置系統 ==========
+        function resetAll() {
+            emergencyStop();
+            completedTasks = 0;
+            agvs.forEach((agv, i) => {
+                const startX = -20 + (i * 5);
+                agv.object.position.set(startX, 0, 20);
+                agv.object.rotation.y = 0;
+                agv.lightMesh.material.color.setHex(0x00ff00);
+                agv.lightMesh.material.emissive.setHex(0x00ff00);
+            });
+            updateUI();
+        }
+
+        // ========== 暫停/繼續動畫 ==========
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+        }
+
+        // ========== 更新 AGV 位置 ==========
+        function updateAGVs() {
+            agvs.forEach(agv => {
+                if (agv.status === 'busy' && agv.path && agv.path.length > 0) {
+                    const target = agv.path[0];
+                    const distance = agv.object.position.distanceTo(target);
+
+                    if (distance < 0.5) {
+                        agv.path.shift();
+                        if (agv.path.length === 0) {
+                            // 任務完成
+                            agv.status = 'idle';
+                            agv.target = null;
+                            agv.currentTask = null;
+                            agv.lightMesh.material.color.setHex(0x00ff00);
+                            agv.lightMesh.material.emissive.setHex(0x00ff00);
+                            
+                            completedTasks++;
+                            tasks = tasks.filter(t => t.agvId !== agv.id);
+                            updateUI();
+                        }
+                    } else {
+                        // 移動向目標
+                        const direction = new THREE.Vector3()
+                            .subVectors(target, agv.object.position)
+                            .normalize();
+                        
+                        agv.object.position.add(direction.multiplyScalar(AGV_CONFIG.speed));
+
+                        // 旋轉朝向目標
+                        const angle = Math.atan2(direction.x, direction.z);
+                        agv.object.rotation.y = angle;
+                    }
+                }
+            });
+        }
+
+        // ========== 更新 UI ==========
+        function updateUI() {
+            // 更新統計
+            const idleCount = agvs.filter(a => a.status === 'idle').length;
+            document.getElementById('active-tasks').textContent = tasks.length;
+            document.getElementById('completed-tasks').textContent = completedTasks;
+            document.getElementById('idle-agv').textContent = idleCount;
+
+            // 更新車輛列表
+            const agvList = document.getElementById('agv-list');
+            agvList.innerHTML = agvs.map(agv => `
+                <div class="agv-item ${agv.status === 'idle' ? 'active' : 'busy'}">
+                    <span class="agv-status status-${agv.status}"></span>
+                    <strong>${agv.id}</strong><br>
+                    <small>狀態: ${agv.status === 'idle' ? '閒置' : '執行中'}</small><br>
+                    <small>電量: ${agv.battery}%</small>
+                </div>
+            `).join('');
+
+            // 更新車輛選項
+            const agvSelect = document.getElementById('agv-select');
+            agvSelect.innerHTML = '<option value="">選擇車輛</option>' +
+                agvs.filter(a => a.status === 'idle').map(agv => 
+                    `<option value="${agv.id}">${agv.id}</option>`
+                ).join('');
+
+            // 更新任務佇列
+            const taskQueue = document.getElementById('task-queue');
+            if (tasks.length === 0) {
+                taskQueue.innerHTML = '<div style="color: #999; text-align: center; padding: 20px;">暫無任務</div>';
+            } else {
+                taskQueue.innerHTML = tasks.map(task => `
+                    <div class="task-item">
+                        <strong>${task.id}</strong><br>
+                        車輛: ${task.agvId}<br>
+                        目的地: ${task.destination}<br>
+                        狀態: ${task.status === 'executing' ? '執行中' : '已完成'}
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ========== 動畫循環 ==========
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isAnimating) {
+                updateAGVs();
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // ========== 視窗大小調整 ==========
+        function onWindowResize() {
+            camera.aspect = (window.innerWidth - 350) / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth - 350, window.innerHeight);
+        }
+
+        // ========== 啟動 ==========
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

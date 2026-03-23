@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8"/>
+
+        <title>雙臂機器人控制介面</title>
+
+        <style>
+            :root {
+                --primary-color: #3498db;
+                --primary-dark: #2980b9;
+                --secondary-color: #9b59b6;
+                --secondary-dark: #8e44ad;
+                --panel-bg: rgba(33, 33, 33, 0.9);
+                --panel-dark: rgba(26, 26, 26, 0.9);
+                --panel-item: rgba(66, 66, 66, 0.6);
+                --success-color: #2ecc71;
+                --warning-color: #f39c12;
+                --error-color: #e74c3c;
+                --text-color: #ecf0f1;
+                --text-secondary: #bdc3c7;
+                --arm1-color: #e74c3c;
+                --arm2-color: #3498db;
+            }
+            
+            html, body {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                font-family: 'Segoe UI', Tahoma, 'Microsoft YaHei', sans-serif;
+                height: 100%;
+                width: 100%;
+            }
+            
+            /* 主佈局 */
+            .main-container {
+                display: flex;
+                flex-direction: row;
+                height: 100vh;
+                width: 100vw;
+                position: relative;
+            }
+            
+            /* 3D視圖容器 */
+            #viewer-container {
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            /* 控制面板容器 - 在大屏幕上顯示為側邊欄 */
+            .panels-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none; /* 允許點擊穿透到下面的3D視圖 */
+                z-index: 10;
+                display: flex; /* 添加 flex 佈局 */
+                justify-content: space-between; /* 面板左右分佈 */
+            }
+            
+            /* 控制面板樣式 */
+            .control-panel {
+                position: absolute;
+                background: var(--panel-bg);
+                color: var(--text-color);
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(5px);
+                pointer-events: auto; /* 恢復點擊事件 */
+                overflow-y: auto;
+                transition: all 0.3s ease;
+                max-height: calc(100vh - 40px); /* 確保面板不會超過視口高度 */
+            }
+            
+            /* 左側面板 - 關節控制 */
+            #base-panel {
+                left: 10px;
+                top: 10px;
+                width: 280px;
+                height: auto; /* 自適應高度 */
+                max-height: 200px; /* 限制最大高度 */
+            }
+            
+            /* 右側面板 - 命令和相機 */
+            #command-panel {
+                right: 10px;
+                top: 10px;
+                width: 300px;
+                max-height: 400px; /* 限制高度 */
+                display: flex;
+                flex-direction: column;
+            }
+            
+            /* 左側機械臂面板 */
+            #arm1-panel {
+                left: 10px;
+                top: 220px; /* 調整位置，確保在基礎面板下方 */
+                width: 280px;
+                max-height: calc(100vh - 240px); /* 動態調整高度 */
+            }
+            
+            /* 右側機械臂面板 */
+            #arm2-panel {
+                right: 10px;
+                top: 420px; /* 調整位置，確保在命令面板下方 */
+                width: 300px;
+                max-height: calc(100vh - 440px); /* 動態調整高度 */
+            }
+            
+            /* 面板標題 */
+            .panel-header {
+                margin-top: 0;
+                margin-bottom: 15px;
+                padding-bottom: 8px;
+                border-bottom: 2px solid var(--primary-color);
+                color: var(--primary-color);
+                font-size: 18px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .arm1-header {
+                border-bottom-color: var(--arm1-color);
+                color: var(--arm1-color);
+            }
+            
+            .arm2-header {
+                border-bottom-color: var(--arm2-color);
+                color: var(--arm2-color);
+            }
+            
+            /* 折疊按鈕 */
+            .collapse-btn {
+                background: none;
+                border: none;
+                color: var(--primary-color);
+                cursor: pointer;
+                font-size: 18px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                transition: background 0.2s;
+            }
+            
+            .collapse-btn:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            .arm1-btn {
+                color: var(--arm1-color);
+            }
+            
+            .arm2-btn {
+                color: var(--arm2-color);
+            }
+            
+            /* 關節控制項 */
+            .joint-control {
+                margin-bottom: 12px;
+                padding: 10px;
+                background: var(--panel-item);
+                border-radius: 6px;
+                transition: background 0.3s;
+            }
+            
+            .joint-control:hover {
+                background: rgba(80, 80, 80, 0.6);
+            }
+            
+            .arm1-control {
+                border-left: 3px solid var(--arm1-color);
+            }
+            
+            .arm2-control {
+                border-left: 3px solid var(--arm2-color);
+            }
+            
+            .base-control {
+                border-left: 3px solid var(--primary-color);
+            }
+            
+            .joint-label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: bold;
+                color: var(--text-color);
+                display: flex;
+                justify-content: space-between;
+            }
+            
+            .value-display {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 5px;
+                font-size: 0.9em;
+                color: var(--text-secondary);
+            }
+            
+            .current-value {
+                font-weight: bold;
+                color: var(--success-color);
+            }
+            
+            .arm1-value {
+                color: var(--arm1-color);
+            }
+            
+            .arm2-value {
+                color: var(--arm2-color);
+            }
+            
+            input[type=range] {
+                width: 100%;
+                margin: 10px 0;
+                -webkit-appearance: none;
+                height: 8px;
+                border-radius: 4px;
+                background: #555;
+                outline: none;
+            }
+            
+            input[type=range]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: var(--primary-color);
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            
+            .arm1-range::-webkit-slider-thumb {
+                background: var(--arm1-color);
+            }
+            
+            .arm2-range::-webkit-slider-thumb {
+                background: var(--arm2-color);
+            }
+            
+            /* 按鈕組 */
+            .button-group {
+                margin-bottom: 20px;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            /* 對於小屏幕，改為單列顯示 */
+            @media (max-width: 480px) {
+                .button-group {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            .control-button {
+                padding: 12px 8px;
+                border: none;
+                border-radius: 5px;
+                background: var(--primary-color);
+                color: white;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            
+            .control-button:hover, .control-button:active {
+                background: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            }
+            
+            .arm1-button {
+                background: var(--arm1-color);
+            }
+            
+            .arm1-button:hover, .arm1-button:active {
+                background: #c0392b;
+            }
+            
+            .arm2-button {
+                background: var(--arm2-color);
+            }
+            
+            .arm2-button:hover, .arm2-button:active {
+                background: var(--primary-dark);
+            }
+            
+            .emergency-button {
+                background: var(--error-color);
+                grid-column: span 2;
+            }
+            
+            @media (max-width: 480px) {
+                .emergency-button {
+                    grid-column: span 1;
+                }
+            }
+            
+            .emergency-button:hover, .emergency-button:active {
+                background: #c0392b;
+            }
+            
+            /* 相機容器 */
+            .camera-container {
+                margin-top: 10px;
+                border-radius: 6px;
+                overflow: hidden;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                min-height: 225px;
+                background: #000;
+                position: relative;
+            }
+            
+            #camera-feed {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            /* 狀態指示器 */
+            .status-indicator {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            
+            .status-dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                margin-right: 8px;
+            }
+            
+            .status-connected {
+                background-color: var(--success-color);
+            }
+            
+            .status-disconnected {
+                background-color: var(--error-color);
+            }
+            
+            .status-text {
+                font-size: 0.9em;
+            }
+            
+            /* 通知樣式 */
+            .notification {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%) translateY(20px);
+                padding: 12px 20px;
+                border-radius: 8px;
+                color: white;
+                font-size: 14px;
+                z-index: 1000;
+                opacity: 0;
+                transition: opacity 0.3s, transform 0.3s;
+                max-width: 90%;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
+            
+            .notification-success {
+                background-color: rgba(46, 204, 113, 0.9);
+            }
+            
+            .notification-error {
+                background-color: rgba(231, 76, 60, 0.9);
+            }
+            
+            /* 預設角度按鈕 */
+            .preset-buttons {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .preset-button {
+                flex: 1;
+                min-width: 80px;
+                padding: 8px;
+                border: none;
+                border-radius: 4px;
+                background: #7f8c8d;
+                color: white;
+                font-size: 0.85em;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            
+            .preset-button:hover, .preset-button:active {
+                background: #95a5a6;
+            }
+            
+            /* 移動裝置樣式 */
+            .mobile-tab-buttons {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 1000;
+                display: none;
+                background: var(--panel-dark);
+                border-radius: 30px;
+                padding: 5px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            }
+            
+            .mobile-tab {
+                background: transparent;
+                color: white;
+                border: none;
+                border-radius: 25px;
+                padding: 8px 15px;
+                margin: 0 2px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            
+            .mobile-tab.active {
+                background: var(--primary-color);
+            }
+            
+            .mobile-tab[data-tab="arm1"].active {
+                background: var(--arm1-color);
+            }
+            
+            .mobile-tab[data-tab="arm2"].active {
+                background: var(--arm2-color);
+            }
+            
+            /* 在小屏幕上顯示菜單按鈕並折疊面板 */
+            @media (max-width: 1100px) {
+                .mobile-tab-buttons {
+                    display: flex;
+                }
+                
+                #base-panel, #command-panel, #arm1-panel, #arm2-panel {
+                    transform: translateY(-120%);
+                    max-height: 80vh;
+                    left: 0;
+                    right: 0;
+                    top: 0;
+                    width: auto;
+                    margin: 0 10px;
+                    z-index: 100; /* 確保面板始終在頂層 */
+                }
+                
+                #base-panel.show-panel, #command-panel.show-panel, #arm1-panel.show-panel, #arm2-panel.show-panel {
+                    transform: translateY(0);
+                }
+                
+                /* 全屏模式下的面板 */
+                .fullscreen-panel {
+                    left: 0 !important;
+                    top: 0 !important;
+                    right: 0 !important;
+                    bottom: 0 !important;
+                    width: auto !important;
+                    height: auto !important;
+                    max-height: none !important;
+                    border-radius: 0 !important;
+                    z-index: 2000;
+                }
+            }
+            
+            /* 極小屏幕調整 */
+            @media (max-width: 400px) {
+                .preset-buttons {
+                    flex-direction: column;
+                }
+                
+                .preset-button {
+                    margin: 2px 0;
+                }
+                
+                .mobile-tab {
+                    padding: 8px 12px;
+                    font-size: 12px;
+                }
+            }
+            
+            /* 標籤元素，顯示當前屏幕尺寸 */
+            .screen-size-indicator {
+                position: fixed;
+                top: 5px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0,0,0,0.5);
+                color: white;
+                padding: 5px 10px;
+                border-radius: 20px;
+                font-size: 12px;
+                z-index: 9999;
+                pointer-events: none;
+                opacity: 0.7;
+            }
+            
+            /* 屏幕方向提示 */
+            .orientation-message {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.9);
+                color: white;
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .orientation-icon {
+                display: block;
+                margin: 20px auto;
+                font-size: 40px;
+                animation: rotate 2s infinite;
+            }
+            
+            @keyframes rotate {
+                0% { transform: rotate(0deg); }
+                50% { transform: rotate(90deg); }
+                100% { transform: rotate(0deg); }
+            }
+            
+            @media (max-width: 450px) and (orientation: landscape) {
+                .orientation-message {
+                    display: flex;
+                }
+            }
+            
+            /* 工具提示 */
+            .tooltip {
+                position: absolute;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 5px 10px;
+                border-radius: 4px;
+                font-size: 12px;
+                z-index: 1000;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+            
+            /* 分隔線 */
+            .separator {
+                height: 1px;
+                background: rgba(255,255,255,0.1);
+                margin: 15px 0;
+            }
+            
+            /* Tab樣式 */
+            .tab-container {
+                display: flex;
+                margin-bottom: 15px;
+            }
+            
+            .tab-button {
+                flex: 1;
+                padding: 8px;
+                border: none;
+                background: var(--panel-item);
+                color: var(--text-color);
+                cursor: pointer;
+                text-align: center;
+                transition: background 0.3s;
+            }
+            
+            .tab-button:first-child {
+                border-radius: 4px 0 0 4px;
+            }
+            
+            .tab-button:last-child {
+                border-radius: 0 4px 4px 0;
+            }
+            
+            .tab-button.active {
+                background: var(--primary-color);
+                color: white;
+            }
+        </style>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./build/three.module.js",
+					"three/addons/": "./examples/jsm/"
+				}
+			}
+		</script>
+		<script>
+            var scene, camera, renderer, controls;
+            var robot;
+            var ros = null;
+            var currentPanel = null;
+            var isMobileView = false;
+		</script>
+		<script type="module">
+			import {
+				WebGLRenderer,
+				PerspectiveCamera,
+				Scene,
+				Mesh,
+				PlaneGeometry,
+				ShadowMaterial,
+				DirectionalLight,
+				PCFSoftShadowMap,
+				sRGBEncoding,
+				Color,
+				AmbientLight,
+				Box3,
+				LoadingManager,
+				MathUtils,
+			} from 'three';
+			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+			import URDFLoader from 'three/addons/loaders/URDFLoader.js';
+			
+            // 在全局作用域中定義函數以供HTML使用
+            window.initROS = initROS;
+            window.callService = callService;
+            window.applyPreset = applyPreset;
+            window.showPanel = showPanel;
+            window.toggleFullscreen = toggleFullscreen;
+            
+            window.jointState = {};
+
+			setTimeout(function(){
+				console.debug("初始化3D視圖");
+				init();
+				render();
+                
+                // 檢測螢幕尺寸並設置UI
+                checkScreenSize();
+                window.addEventListener('resize', checkScreenSize);
+                
+                // 初始化ROS連接
+                initROS();
+			}, 1000);
+            
+            function checkScreenSize() {
+                const width = window.innerWidth;
+                
+                // 更新尺寸指示器
+                const indicator = document.getElementById('screen-size');
+                if (indicator) {
+                    indicator.innerText = `${width}px × ${window.innerHeight}px`;
+                }
+                
+                // 設置移動視圖
+                isMobileView = width <= 1100;
+                
+                // 如果是移動視圖，默認隱藏面板
+                if (isMobileView) {
+                    const panels = document.querySelectorAll('.control-panel');
+                    panels.forEach(panel => {
+                        panel.classList.remove('show-panel');
+                    });
+                }
+            }
+
+			function init() {
+				scene = new Scene();
+				scene.background = new Color(0x263238);
+
+				camera = new PerspectiveCamera();
+				camera.position.set(0.5, 0.5, 0.5);
+				camera.lookAt(0, 0, 0);
+
+				renderer = new WebGLRenderer({ antialias: true });
+				renderer.outputEncoding = sRGBEncoding;
+				renderer.shadowMap.enabled = true;
+				renderer.shadowMap.type = PCFSoftShadowMap;
+                const viewerContainer = document.getElementById('viewer-container');
+				viewerContainer.appendChild(renderer.domElement);
+
+				const directionalLight = new DirectionalLight(0xffffff, 1.0);
+				directionalLight.castShadow = true;
+				directionalLight.shadow.mapSize.setScalar(1024);
+				directionalLight.position.set(1, 10, 1);
+				scene.add(directionalLight);
+
+				const ambientLight = new AmbientLight(0xffffff, 0.2);
+				scene.add(ambientLight);
+
+				const ground = new Mesh(new PlaneGeometry(), new ShadowMaterial({ opacity: 0.25 }));
+				ground.rotation.x = -Math.PI / 2;
+				ground.scale.setScalar(30);
+				ground.receiveShadow = true;
+				scene.add(ground);
+
+				controls = new OrbitControls(camera, renderer.domElement);
+				controls.minDistance = 0.1;
+				controls.target.y = 1;
+				controls.update();
+
+				// 加載機器人模型
+				const manager = new LoadingManager();
+				const loader = new URDFLoader(manager);
+				loader.load('./examples/models/urdf/urdf3/combined_robot_doublearm.urdf', result => {
+					robot = result;
+                    window.robot = robot; // 使robot在全局可用
+				});
+
+				// 等待幾何體加載完成後將模型添加到場景
+				manager.onLoad = () => {
+					robot.rotation.x = Math.PI / 2;
+					robot.rotation.x *= (-1);
+					robot.traverse(c => {
+						c.castShadow = true;
+					});
+                    
+                    // 初始化關節控制
+                     // 確保robot已完全加載後再初始化控制器
+					setTimeout(() => {
+						setupJointControls();
+					}, 500);
+
+					robot.updateMatrixWorld(true);
+
+					const bb = new Box3();
+					bb.setFromObject(robot);
+
+					robot.position.y -= bb.min.y;
+					scene.add(robot);
+
+                    console.log("機器人模型加載完成");
+				};
+
+				onResize();
+				window.addEventListener('resize', onResize);
+                
+                // 添加觸摸事件支持
+                setupTouchControls();
+			}
+            
+            // 設置觸摸事件以更好地支持移動設備
+            function setupTouchControls() {
+                // 禁用雙指縮放以避免與OrbitControls衝突
+                renderer.domElement.addEventListener('touchstart', function(e) {
+                    if (e.touches.length > 1) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                
+                // 為移動設備優化OrbitControls
+                controls.rotateSpeed = 0.7; // 降低旋轉速度
+                controls.zoomSpeed = 1.2;   // 增加縮放速度
+                controls.enableDamping = true; // 啟用阻尼
+                controls.dampingFactor = 0.1;
+            }
+            
+            // 設置關節控制界面
+            function setupJointControls() {
+                // 基座關節
+                const baseJoints = ["Z", "Y", "X", "R", "G"];
+                setupJointSection('base-controls', baseJoints, 'base');
+                
+                // 機械臂1關節
+                const arm1Joints = ["arm1_joint1", "arm1_joint2", "arm1_joint3", "arm1_joint4", 
+                                    "arm1_joint5", "arm1_joint6", "arm1_joint7", "arm1_joint8"];
+                setupJointSection('arm1-controls', arm1Joints, 'arm1');
+                
+                // 機械臂2關節
+                const arm2Joints = ["arm2_joint1", "arm2_joint2", "arm2_joint3", "arm2_joint4", 
+                                    "arm2_joint5", "arm2_joint6", "arm2_joint7", "arm2_joint8"];
+                setupJointSection('arm2-controls', arm2Joints, 'arm2');
+            }
+
+            // 設置特定部分的關節控制
+            function setupJointSection(containerId, jointNames, armType) {
+                const controlDiv = document.getElementById(containerId);
+                if (!controlDiv) return;
+                
+                // 清空之前的控制項
+                controlDiv.innerHTML = '';
+                
+                // 創建預設位置按鈕
+                if (armType === 'arm1' || armType === 'arm2') {
+                    const presetContainer = document.createElement('div');
+                    presetContainer.className = 'preset-buttons';
+                    
+                    const presets = [
+                        { name: '原點', values: [0, 0, 0, 0, 0, 0, 0, 0] },
+                        { name: '工作位置', values: [0, 0.75, -1.1, 0, 0.5, 0, -0.035, 0] },
+                        { name: '收起', values: [0, 0, 0, 0, 0, 0, 0, 0] }
+                    ];
+                    
+                    presets.forEach((preset, index) => {
+                        const button = document.createElement('button');
+                        button.className = 'preset-button';
+                        button.innerText = preset.name;
+                        button.onclick = () => {
+                            applyPreset(armType, index);
+                        };
+                        presetContainer.appendChild(button);
+                    });
+                    
+                    controlDiv.appendChild(presetContainer);
+                }
+                
+                // 為每個關節創建控制項
+                jointNames.forEach((name, index) => {
+                    const joint = robot.joints[name];
+                    if (!joint) {
+                        console.warn(`找不到關節: ${name}`);
+                        return;
+                    }
+                    
+                    // 存儲初始關節狀態
+                    if (!window.jointState[name]) {
+                        window.jointState[name] = 0;
+                    }
+                    
+                    const div = document.createElement('div');
+                    div.className = `joint-control ${armType}-control`;
+                    
+                    const labelContainer = document.createElement('div');
+                    labelContainer.className = 'joint-label';
+                    
+                    const label = document.createElement('span');
+                    label.innerText = name;
+                    
+                    const currentValue = document.createElement('span');
+                    currentValue.className = `current-value ${armType}-value`;
+                    currentValue.id = `${name}_value`;
+                    currentValue.innerText = '0.00';
+                    
+                    labelContainer.appendChild(label);
+                    labelContainer.appendChild(currentValue);
+                    
+                    const valueDisplay = document.createElement('div');
+                    valueDisplay.className = 'value-display';
+
+                    var minLimit = joint.limit?.lower || -3.14;
+                    var maxLimit = joint.limit?.upper || 3.14;
+                    console.log("Name------------- : "+name);
+                    
+                    var named = name.split("_")[1];
+
+                    if(named == "joint1"){
+                        minLimit = -2.618;
+                        maxLimit =  2.618;
+                    }
+                    else if(named == "joint2"){
+                        minLimit =  0;
+                        maxLimit =  3.14;
+                    }
+                    else if(named == "joint3"){
+                        minLimit =  -2.96;
+                        maxLimit =  0;
+
+                    }
+                    else if(named == "joint4"){
+                        minLimit =  -1.745;
+                        maxLimit =  1.745;
+
+                    }
+                    else if(named == "joint5"){
+                        minLimit =  -1.22;
+                        maxLimit =  1.22;
+
+                    }
+                    else if(named == "joint6"){
+                        minLimit =  -2.0944;
+                        maxLimit =  2.0944;
+
+                    }
+                    else if(named == "joint7"){
+                        minLimit =  -0.09;
+                        maxLimit =  0.0;
+                    }else{
+                        minLimit =  0;
+                        maxLimit =  0.2;
+                    }
+
+                    
+                    
+                    const minValueText = document.createElement('span');
+                    minValueText.innerText = minLimit.toFixed(2);
+                    
+                    const maxValueText = document.createElement('span');
+                    maxValueText.innerText = maxLimit.toFixed(2);
+                    
+                    valueDisplay.appendChild(minValueText);
+                    valueDisplay.appendChild(maxValueText);
+                    
+                    const slider = document.createElement('input');
+                    slider.type = 'range';
+                    slider.className = `${armType}-range`;
+                    slider.min = minLimit;
+                    slider.max = maxLimit;
+                    slider.step = 0.01;
+                    slider.value = window.jointState[name];
+                    slider.id = `slider_${name}`;
+                    
+                    // 修改的滑桿事件監聽器 - 發布完整狀態而不是單個關節
+                    slider.addEventListener('input', () => {
+                        const value = parseFloat(slider.value);
+                        joint.setJointValue(value);
+                        document.getElementById(`${name}_value`).innerText = value.toFixed(2);
+                        window.jointState[name] = value;
+                        
+                        // 如果連接到ROS，發布完整的關節狀態
+                        if (ros && ros.isConnected) {
+                            // publishCompleteJointState(armType);  // 使用 armType 而不是 type
+                            publishAllJointsState()
+                        }
+                    });
+                    
+                    div.appendChild(labelContainer);
+                    div.appendChild(valueDisplay);
+                    div.appendChild(slider);
+                    
+                    controlDiv.appendChild(div);
+                });
+            }
+
+            // 新增函數：發布完整的關節狀態
+            function publishCompleteJointState(armType) {
+                if (!ros || !ros.isConnected) return;
+                
+                let topicName = '';
+                let jointNames = [];
+                
+                // 根據機械臂類型選擇話題和關節名稱
+                if (armType === 'arm1') {
+                    //topicName = '/arm1/joint_custom_state';
+                    topicName = '/joint_custom_state';
+                    jointNames = ["arm1_joint1", "arm1_joint2", "arm1_joint3", "arm1_joint4", 
+                                "arm1_joint5", "arm1_joint6", "arm1_joint7", "arm1_joint8"];
+                } else if (armType === 'arm2') {
+                    //topicName = '/arm2/joint_custom_state';
+                    topicName = '/joint_custom_state';
+                    jointNames = ["arm2_joint1", "arm2_joint2", "arm2_joint3", "arm2_joint4", 
+                                "arm2_joint5", "arm2_joint6", "arm2_joint7", "arm2_joint8"];
+                } else if (armType === 'base') {
+                    topicName = '/joint_custom_state';
+                    jointNames = ["Z", "Y", "X", "R", "G"];
+                } else {
+                    console.error(`未知的機械臂類型: ${armType}`);
+                    return;
+                }
+                
+                // 構建完整的關節狀態數據
+                const positions = [];
+                const velocities = [];
+                const efforts = [];
+                
+                jointNames.forEach(jointName => {
+                    // 獲取當前關節的值，如果不存在則使用0
+                    const currentValue = window.jointState[jointName] || 0;
+                    positions.push(currentValue);
+                    velocities.push(0.0);  // 默認速度為0
+                    efforts.push(0.0);     // 默認力矩為0
+                });
+                
+                // 創建 JointState 消息
+                const jointStateMsg = new ROSLIB.Message({
+                    header: {
+                        stamp: {
+                            sec: Math.floor(Date.now() / 1000),
+                            nanosec: (Date.now() % 1000) * 1000000
+                        },
+                        frame_id: ''
+                    },
+                    name: jointNames,
+                    position: positions,
+                    velocity: velocities,
+                    effort: efforts
+                });
+                
+                // 發布到相應的話題
+                const jointStateTopic = new ROSLIB.Topic({
+                    ros: ros,
+                    name: topicName,
+                    messageType: 'sensor_msgs/JointState'
+                });
+                
+                jointStateTopic.publish(jointStateMsg);
+                console.log(`發布完整關節狀態到 ${topicName}:`, jointNames.length, '個關節');
+            }
+
+            // 如果您需要發布所有關節（包括底盤和雙臂）的狀態到合併話題
+            function publishAllJointsState() {
+                if (!ros || !ros.isConnected) return;
+                
+                // 定義所有關節名稱
+                const allJointNames = [
+                    'Z', 'Y', 'X', 'R', 'G',  // 底盤關節
+                    'front_right_wheel', 'front_left_wheel', 'rear_left_wheel', 'rear_right_wheel',  // 輪子關節
+                    'arm1_joint1', 'arm1_joint2', 'arm1_joint3', 'arm1_joint4', 
+                    'arm1_joint5', 'arm1_joint6', 'arm1_joint7', 'arm1_joint8',  // 左臂關節
+                    'arm2_joint1', 'arm2_joint2', 'arm2_joint3', 'arm2_joint4', 
+                    'arm2_joint5', 'arm2_joint6', 'arm2_joint7', 'arm2_joint8'   // 右臂關節
+                ];
+                
+                // 構建完整的關節狀態數據
+                const positions = [];
+                const velocities = [];
+                const efforts = [];
+                
+                allJointNames.forEach(jointName => {
+                    const currentValue = window.jointState[jointName] || 0;
+                    positions.push(currentValue);
+                    velocities.push(0.0);
+                    efforts.push(0.0);
+                });
+                
+                // 創建 JointState 消息
+                const jointStateMsg = new ROSLIB.Message({
+                    header: {
+                        stamp: {
+                            sec: Math.floor(Date.now() / 1000),
+                            nanosec: (Date.now() % 1000) * 1000000
+                        },
+                        frame_id: ''
+                    },
+                    name: allJointNames,
+                    position: positions,
+                    velocity: velocities,
+                    effort: efforts
+                });
+                
+                // 發布到合併話題
+                const jointStateTopic = new ROSLIB.Topic({
+                    ros: ros,
+                    name: '/joint_custom_state',
+                    messageType: 'sensor_msgs/JointState'
+                });
+                
+                jointStateTopic.publish(jointStateMsg);
+                console.log('發布所有關節狀態:', allJointNames.length, '個關節');
+            }
+
+            // 原來的 publishJointState 函數保留作為備用
+            function publishJointState(jointName, value) {
+                if (!ros || !ros.isConnected) return;
+                
+                // 創建只包含單個關節的消息
+                const jointStateMsg = new ROSLIB.Message({
+                    header: {
+                        stamp: {
+                            sec: Math.floor(Date.now() / 1000),
+                            nanosec: (Date.now() % 1000) * 1000000
+                        },
+                        frame_id: ''
+                    },
+                    name: [jointName],
+                    position: [value],
+                    velocity: [0.0],
+                    effort: [0.0]
+                });
+                
+                // 發布到合併話題
+                const jointStateTopic = new ROSLIB.Topic({
+                    ros: ros,
+                    name: '/joint_custom_state',
+                    messageType: 'sensor_msgs/JointState'
+                });
+                
+                jointStateTopic.publish(jointStateMsg);
+                console.log(`發布單個關節狀態: ${jointName} = ${value}`);
+            }
+            
+			function onResize() {
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setPixelRatio(window.devicePixelRatio);
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+			}
+
+			function render() {
+				requestAnimationFrame(render);
+                if (controls.enableDamping) {
+                    controls.update();
+                }
+				renderer.render(scene, camera);
+			}
+		</script>
+        
+        <!-- ROS相關功能 -->
+        <script src="https://cdn.jsdelivr.net/npm/roslib/build/roslib.min.js"></script>
+        <script>
+            // 初始化ROS連接
+            function initROS() {
+                if (typeof ROSLIB === 'undefined') {
+                    console.error("ROSLIB未加載，無法連接到ROS");
+                    showNotification("ROSLIB未加載，使用本地模式", true);
+                    return;
+                }
+                
+                ros = new ROSLIB.Ros({ url: 'ws://192.168.1.125:9090' });
+                
+                ros.on('connection', () => {
+                    console.log('已連接到ROSBridge');
+                    document.getElementById('connection-status').className = 'status-dot status-connected';
+                    document.getElementById('connection-text').innerText = '已連接';
+                    ros.isConnected = true;
+                    
+                    // 設置相機流
+                    setupCameraStream();
+                    
+                    // 訂閱關節狀態
+                    subscribeToJointStates();
+                    
+                    showNotification("已連接到ROS服務器");
+                });
+                
+                ros.on('error', error => {
+                    console.error('連接錯誤:', error);
+                    document.getElementById('connection-status').className = 'status-dot status-disconnected';
+                    document.getElementById('connection-text').innerText = '連接錯誤';
+                    ros.isConnected = false;
+                    
+                    showNotification("ROS連接失敗，請檢查網絡設置", true);
+                });
+                
+                ros.on('close', () => {
+                    console.log('連接已關閉');
+                    document.getElementById('connection-status').className = 'status-dot status-disconnected';
+                    document.getElementById('connection-text').innerText = '已斷開';
+                    ros.isConnected = false;
+                    
+                    showNotification("與ROS服務器的連接已關閉", true);
+                    
+                    // 5秒後嘗試重新連接
+                    setTimeout(initROS, 5000);
+                });
+            }
+            
+            // 設置相機流
+            function setupCameraStream() {
+                const cameraFeed = document.getElementById('camera-feed');
+                if (!cameraFeed) return;
+                
+                // 使用你的ROS服務器IP和端口
+                cameraFeed.src = 'http://192.168.3.125:8080/stream?topic=/camera/color/image_raw';
+                
+                cameraFeed.onerror = () => {
+                    console.error('載入相機流時出錯');
+                    cameraFeed.alt = '相機流不可用';
+                    cameraFeed.src = '';
+                    
+                    // 5秒後重試
+                    setTimeout(setupCameraStream, 5000);
+                };
+            }
+            
+            // 訂閱關節狀態
+            function subscribeToJointStates() {
+                if (!ros || !ros.isConnected) return;
+                
+                const jointListener = new ROSLIB.Topic({
+                    ros: ros,
+                    name: '/joint_states',
+                    messageType: 'sensor_msgs/JointState'
+                });
+                
+                jointListener.subscribe(message => {
+                    if (!robot) return;
+                    
+                    console.log('接收到關節狀態');
+                    message.name.forEach((jointName, index) => {
+                        const jointValue = message.position[index];
+                        const joint = robot.joints[jointName];
+                        
+                        if (joint) {
+                            joint.setJointValue(jointValue);
+                            window.jointState[jointName] = jointValue;
+                            
+                            // 更新UI
+                            const slider = document.getElementById(`slider_${jointName}`);
+                            const valueText = document.getElementById(`${jointName}_value`);
+                            
+                            if (slider) slider.value = jointValue;
+                            if (valueText) valueText.innerText = jointValue.toFixed(2);
+                        }
+                    });
+                });
+            }
+            
+            // 發布單個關節狀態
+            function publishJointState(jointName, value) {
+                if (!ros || !ros.isConnected) return;
+                
+                // 使用與訂閱相同的主題，但僅發送單個關節更新
+                const jointPublisher = new ROSLIB.Topic({
+                    ros: ros,
+                    name: '/joint_custom_state',
+                    messageType: 'sensor_msgs/JointState'
+                });
+                
+                const msg = new ROSLIB.Message({
+                    header: {
+                        stamp: {
+                            sec: 0,
+                            nanosec: 0
+                        },
+                        frame_id: ''
+                    },
+                    name: [jointName],
+                    position: [value],
+                    velocity: [],
+                    effort: []
+                });
+                
+                jointPublisher.publish(msg);
+            }
+
+            // 新增函數：發布完整的關節狀態
+            function publishCompleteJointState(armType) {
+                if (!ros || !ros.isConnected) return;
+                
+                let topicName = '';
+                let jointNames = [];
+                
+                // 根據機械臂類型選擇話題和關節名稱
+                if (armType === 'arm1') {
+                    topicName = '/arm1/joint_custom_state';
+                    jointNames = ['arm1_joint1', 'arm1_joint2', 'arm1_joint3', 'arm1_joint4', 
+                                'arm1_joint5', 'arm1_joint6', 'arm1_joint7', 'arm1_joint8'];
+                } else if (armType === 'arm2') {
+                    topicName = '/arm2/joint_custom_state';
+                    jointNames = ['arm2_joint1', 'arm2_joint2', 'arm2_joint3', 'arm2_joint4', 
+                                'arm2_joint5', 'arm2_joint6', 'arm2_joint7', 'arm2_joint8'];
+                } else if (armType === 'base') {
+                    topicName = '/joint_custom_state';
+                    jointNames = ['Z', 'Y', 'X', 'R', 'G'];
+                } else {
+                    console.error(`未知的機械臂類型: ${armType}`);
+                    return;
+                }
+                
+                // 構建完整的關節狀態數據
+                const positions = [];
+                const velocities = [];
+                const efforts = [];
+                
+                jointNames.forEach(jointName => {
+                    // 獲取當前關節的值，如果不存在則使用0
+                    const currentValue = window.jointState[jointName] || 0;
+                    positions.push(currentValue);
+                    velocities.push(0.0);  // 默認速度為0
+                    efforts.push(0.0);     // 默認力矩為0
+                });
+                
+                // 創建 JointState 消息
+                const jointStateMsg = new ROSLIB.Message({
+                    header: {
+                        stamp: {
+                            sec: Math.floor(Date.now() / 1000),
+                            nanosec: (Date.now() % 1000) * 1000000
+                        },
+                        frame_id: ''
+                    },
+                    name: jointNames,
+                    position: positions,
+                    velocity: velocities,
+                    effort: efforts
+                });
+                
+                // 發布到相應的話題
+                const jointStateTopic = new ROSLIB.Topic({
+                    ros: ros,
+                    name: topicName,
+                    messageType: 'sensor_msgs/JointState'
+                });
+                
+                jointStateTopic.publish(jointStateMsg);
+                console.log(`發布完整關節狀態到 ${topicName}:`, jointNames, positions);
+            }
+
+            // 如果您需要發布所有關節（包括底盤和雙臂）的狀態
+            function publishAllJointsState() {
+                if (!ros || !ros.isConnected) return;
+                
+                // 定義所有關節名稱
+                const allJointNames = [
+                    'Z', 'Y', 'X', 'R', 'G',  // 底盤關節
+                    'front_right_wheel', 'front_left_wheel', 'rear_left_wheel', 'rear_right_wheel',  // 輪子關節
+                    'arm1_joint1', 'arm1_joint2', 'arm1_joint3', 'arm1_joint4', 
+                    'arm1_joint5', 'arm1_joint6', 'arm1_joint7', 'arm1_joint8',  // 左臂關節
+                    'arm2_joint1', 'arm2_joint2', 'arm2_joint3', 'arm2_joint4', 
+                    'arm2_joint5', 'arm2_joint6', 'arm2_joint7', 'arm2_joint8'   // 右臂關節
+                ];
+                
+                // 構建完整的關節狀態數據
+                const positions = [];
+                const velocities = [];
+                const efforts = [];
+                
+                allJointNames.forEach(jointName => {
+                    const currentValue = window.jointState[jointName] || 0;
+                    positions.push(currentValue);
+                    velocities.push(0.0);
+                    efforts.push(0.0);
+                });
+                
+                // 創建 JointState 消息
+                const jointStateMsg = new ROSLIB.Message({
+                    header: {
+                        stamp: {
+                            sec: Math.floor(Date.now() / 1000),
+                            nanosec: (Date.now() % 1000) * 1000000
+                        },
+                        frame_id: ''
+                    },
+                    name: allJointNames,
+                    position: positions,
+                    velocity: velocities,
+                    effort: efforts
+                });
+                
+                // 發布到合併話題
+                const jointStateTopic = new ROSLIB.Topic({
+                    ros: ros,
+                    name: '/joint_custom_state',
+                    messageType: 'sensor_msgs/JointState'
+                });
+                
+                jointStateTopic.publish(jointStateMsg);
+                console.log('發布所有關節狀態:', allJointNames.length, '個關節');
+            }
+            
+            // 應用預設位置
+            function applyPreset(armType, presetIndex) {
+                const arm1Presets = [
+                    [0, 0, 0, 0, 0, 0, 0, 0],           // 原點
+                    [0, 0.75, -1.1, 0, 0.5, 0, -0.035, 0],       // 工作位置
+                    [0, 0, 0, 0, 0, 0, 0, 0]      // 收起
+                ];
+                
+                const arm2Presets = [
+                    [0, 0, 0, 0, 0, 0, 0, 0],           // 原點
+                    [0, 0.75, -1.1, 0, 0.5, 0, -0.035, 0],       // 工作位置
+                    [0, 0, 0, 0, 0, 0, 0, 0]      // 收起
+                ];
+                
+                if (presetIndex < 0 || presetIndex >= 3) {
+                    console.error("無效的預設索引");
+                    return;
+                }
+                
+                // 根據機械臂類型選擇關節名稱和預設位置
+                let jointNames = [];
+                let preset = [];
+                
+                if (armType === 'arm1') {
+                    jointNames = ["arm1_joint1", "arm1_joint2", "arm1_joint3", "arm1_joint4", 
+                                  "arm1_joint5", "arm1_joint6", "arm1_joint7", "arm1_joint8"];
+                    preset = arm1Presets[presetIndex];
+                } else if (armType === 'arm2') {
+                    jointNames = ["arm2_joint1", "arm2_joint2", "arm2_joint3", "arm2_joint4", 
+                                  "arm2_joint5", "arm2_joint6", "arm2_joint7", "arm2_joint8"];
+                    preset = arm2Presets[presetIndex];
+                } else {
+                    console.error("無效的機械臂類型");
+                    return;
+                }
+                
+                // 應用預設位置
+                jointNames.forEach((name, i) => {
+                    const joint = window.robot?.joints[name];
+                    const slider = document.getElementById(`slider_${name}`);
+                    const valueText = document.getElementById(`${name}_value`);
+                    const value = preset[i];
+                    
+                    if (joint) {
+                        joint.setJointValue(value);
+                        window.jointState[name] = value;
+                    }
+                    
+                    if (slider) slider.value = value;
+                    if (valueText) valueText.innerText = value.toFixed(2);
+                    
+                    // 如果連接到ROS，發布關節狀態
+                    if (ros && ros.isConnected) {
+                        //publishJointState(name, value);
+                        publishAllJointsState(name,value);
+                    }
+                });
+                
+                showNotification(`已應用${armType === 'arm1' ? '左側' : '右側'}機械臂預設位置`);
+            }
+            
+            // 調用ROS服務
+            function callService(command, armType = null) {
+                if (!ros || !ros.isConnected) {
+                    showNotification("未連接到ROS服務", true);
+                    return;
+                }
+                
+                // 根據機械臂類型調整服務名稱
+                let serviceName = `/ui/${command}`;
+                if (armType) {
+                    serviceName = `/ui/${armType}/${command}`;
+                }
+                
+                const service = new ROSLIB.Service({
+                    ros: ros,
+                    name: serviceName,
+                    serviceType: 'std_srvs/Trigger'
+                });
+                
+                const request = new ROSLIB.ServiceRequest({});
+                
+                const armName = armType === 'arm1' ? '左側機械臂' : 
+                                armType === 'arm2' ? '右側機械臂' : '';
+                showNotification(`正在調用服務: ${armName} ${command}...`);
+                
+                service.callService(request, result => {
+                    console.log(`${command} 結果:`, result);
+                    
+                    if (result.success) {
+                        showNotification(`服務調用成功: ${result.message}`);
+                    } else {
+                        showNotification(`服務調用失敗: ${result.message}`, true);
+                    }
+                }, error => {
+                    console.error(`${command} 服務調用錯誤:`, error);
+                    showNotification(`服務調用錯誤: ${command}`, true);
+                });
+            }
+            
+            // 顯示通知
+            function showNotification(message, isError = false) {
+                // 移除現有通知
+                const existingNotifications = document.querySelectorAll('.notification');
+                existingNotifications.forEach(notification => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                });
+                
+                const notification = document.createElement('div');
+                notification.className = isError ? 'notification notification-error' : 'notification notification-success';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                // 淡入
+                setTimeout(() => {
+                    notification.style.opacity = '1';
+                    notification.style.transform = 'translateX(-50%)';
+                }, 10);
+                
+                // 3秒後淡出
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(-50%) translateY(20px)';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+            
+            // 顯示指定面板
+            function showPanel(panelId) {
+                // 隱藏所有面板
+                const allPanels = document.querySelectorAll('.control-panel');
+                allPanels.forEach(panel => {
+                    panel.classList.remove('show-panel');
+                    panel.classList.remove('fullscreen-panel'); // 確保退出全屏
+                });
+                
+                // 顯示選定的面板
+                const panel = document.getElementById(panelId);
+                if (panel) {
+                    panel.classList.add('show-panel');
+                    
+                    // 更新移動標籤激活狀態
+                    const tabs = document.querySelectorAll('.mobile-tab');
+                    tabs.forEach(tab => {
+                        if (tab.dataset.tab === panelId.replace('-panel', '')) {
+                            tab.classList.add('active');
+                        } else {
+                            tab.classList.remove('active');
+                        }
+                    });
+                }
+                
+                // 如果是空，則全部隱藏
+                if (panelId === '') {
+                    tabs.forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                }
+                
+                // 根據面板ID重新檢查和創建控制器
+                if (panelId === 'base-panel' && robot) {
+                    setupJointSection('base-controls', ["Z", "Y", "X", "R", "G"], 'base');
+                } else if (panelId === 'arm1-panel' && robot) {
+                    setupJointSection('arm1-controls', ["arm1_joint1", "arm1_joint2", "arm1_joint3", "arm1_joint4", 
+                                    "arm1_joint5", "arm1_joint6", "arm1_joint7", "arm1_joint8"], 'arm1');
+                } else if (panelId === 'arm2-panel' && robot) {
+                    setupJointSection('arm2-controls', ["arm2_joint1", "arm2_joint2", "arm2_joint3", "arm2_joint4", 
+                                    "arm2_joint5", "arm2_joint6", "arm2_joint7", "arm2_joint8"], 'arm2');
+                }
+            }
+            
+            // 全屏切換
+            function toggleFullscreen(panelId) {
+                const panel = document.getElementById(panelId);
+                if (!panel) return;
+                
+                if (panel.classList.contains('fullscreen-panel')) {
+                    panel.classList.remove('fullscreen-panel');
+                } else {
+                    panel.classList.add('fullscreen-panel');
+                }
+            }
+            
+            // 在頁面加載後，提示用戶如何控制視圖
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    showNotification("提示：使用滑鼠左鍵或觸摸拖動旋轉視圖，滾輪或雙指縮放");
+                }, 2000);
+                
+                // 默認顯示基座面板
+                showPanel('base-panel');
+            });
+        </script>
+    </head>
+    <body>
+        <div class="main-container">
+            <!-- 3D視圖容器 -->
+            <div id="viewer-container"></div>
+            
+            <!-- 面板容器 -->
+            <div class="panels-container">
+                <!-- 基座控制面板 -->
+                <div id="base-panel" class="control-panel">
+                    <div class="panel-header">
+                        <span>基座控制</span>
+                        <button class="collapse-btn" onclick="showPanel('')">×</button>
+                    </div>
+                    <div class="status-indicator">
+                        <div id="connection-status" class="status-dot status-disconnected"></div>
+                        <span id="connection-text" class="status-text">連接中...</span>
+                    </div>
+                    <div id="base-controls">
+                        <!-- 基座關節控制器會動態生成 -->
+                    </div>
+                    
+                    <div class="separator"></div>
+                    
+                    <div class="button-group">
+                        <button class="control-button" onclick="callService('reset_pose')">重置所有姿態</button>
+                        <button class="control-button" onclick="callService('home_position')">回到原點</button>
+                        <button class="control-button emergency-button" onclick="callService('emergency_stop')">緊急停止</button>
+                    </div>
+                </div>
+                
+                <!-- 機械臂1控制面板 -->
+                <div id="arm1-panel" class="control-panel">
+                    <div class="panel-header arm1-header">
+                        <span>左側機械臂控制</span>
+                        <button class="collapse-btn arm1-btn" onclick="showPanel('')">×</button>
+                    </div>
+                    <div id="arm1-controls">
+                        <!-- 機械臂1關節控制器會動態生成 -->
+                    </div>
+                    
+                    <div class="separator"></div>
+                    
+                    <div class="button-group">
+                        <button class="control-button arm1-button" onclick="callService('reset_pose', 'arm1')">重置姿態</button>
+                        <button class="control-button arm1-button" onclick="callService('open_gripper', 'arm1')">打開夾爪</button>
+                        <button class="control-button arm1-button" onclick="callService('close_gripper', 'arm1')">關閉夾爪</button>
+                        <button class="control-button arm1-button" onclick="callService('start_trajectory', 'arm1')">開始軌跡</button>
+                        <button class="control-button arm1-button" onclick="callService('stop_trajectory', 'arm1')">停止軌跡</button>
+                    </div>
+                </div>
+                
+                <!-- 機械臂2控制面板 -->
+                <div id="arm2-panel" class="control-panel">
+                    <div class="panel-header arm2-header">
+                        <span>右側機械臂控制</span>
+                        <button class="collapse-btn arm2-btn" onclick="showPanel('')">×</button>
+                    </div>
+                    <div id="arm2-controls">
+                        <!-- 機械臂2關節控制器會動態生成 -->
+                    </div>
+                    
+                    <div class="separator"></div>
+                    
+                    <div class="button-group">
+                        <button class="control-button arm2-button" onclick="callService('reset_pose', 'arm2')">重置姿態</button>
+                        <button class="control-button arm2-button" onclick="callService('open_gripper', 'arm2')">打開夾爪</button>
+                        <button class="control-button arm2-button" onclick="callService('close_gripper', 'arm2')">關閉夾爪</button>
+                        <button class="control-button arm2-button" onclick="callService('start_trajectory', 'arm2')">開始軌跡</button>
+                        <button class="control-button arm2-button" onclick="callService('stop_trajectory', 'arm2')">停止軌跡</button>
+                    </div>
+                </div>
+                
+                <!-- 命令面板 -->
+                <div id="command-panel" class="control-panel">
+                    <div class="panel-header">
+                        <span>相機與狀態監控</span>
+                        <button class="collapse-btn" onclick="showPanel('')">×</button>
+                    </div>
+                    
+                    <h3 class="panel-header">
+                        <span>相機畫面</span>
+                        <button class="collapse-btn" onclick="toggleFullscreen('command-panel')">⤢</button>
+                    </h3>
+                    <div class="camera-container">
+                        <img id="camera-feed" alt="相機畫面載入中...">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 移動設備標籤按鈕 -->
+            <div class="mobile-tab-buttons">
+                <button class="mobile-tab" data-tab="base" onclick="showPanel('base-panel')">基座</button>
+                <button class="mobile-tab" data-tab="arm1" onclick="showPanel('arm1-panel')">左臂</button>
+                <button class="mobile-tab" data-tab="arm2" onclick="showPanel('arm2-panel')">右臂</button>
+                <button class="mobile-tab" data-tab="command" onclick="showPanel('command-panel')">相機</button>
+            </div>
+        </div>
+        
+        <!-- 屏幕尺寸指示器（調試用） -->
+        <div id="screen-size" class="screen-size-indicator"></div>
+        
+        <!-- 屏幕方向提示 -->
+        <div class="orientation-message">
+            <div>
+                <div class="orientation-icon">⟳</div>
+                <h3>請將設備旋轉到橫向模式</h3>
+                <p>為獲得最佳體驗，建議使用橫向模式</p>
+            </div>
+        </div>
+    </body>
+</html>

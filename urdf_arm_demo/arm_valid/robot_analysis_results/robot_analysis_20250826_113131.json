@@ -1,0 +1,35 @@
+{
+  "urdf_path": "examples/models/urdf/urdf3/dual_piepr_humanity.urdf",
+  "analysis_timestamp": "20250826_113131",
+  "joint_info": {},
+  "robot_specs": {
+    "estimated_reach": 0.0,
+    "num_joints": 0,
+    "total_joint_range": 0,
+    "method": "simplified_estimation"
+  },
+  "reachable_positions": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "workspace_analysis": {
+    "total_positions": 1,
+    "total_poses": 30000,
+    "solver_type": "simplified"
+  },
+  "position_orientation_sample": {
+    "(0.0, 0.0, 0.0)": {
+      "sample_quaternion": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sample_joint_config": [],
+      "total_orientations": 30000
+    }
+  }
+}

@@ -1,0 +1,51 @@
+[
+  {
+    "position": [
+      0.3,
+      0.0,
+      0.4
+    ],
+    "orientation_euler": [
+      0,
+      -1.57,
+      0
+    ]
+  },
+  {
+    "position": [
+      0.5,
+      0.2,
+      0.3
+    ],
+    "orientation_quat": [
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "position": [
+      0.2,
+      -0.3,
+      0.5
+    ],
+    "orientation_euler": [
+      0.5,
+      -1.0,
+      0.5
+    ]
+  },
+  {
+    "position": [
+      0.6,
+      0.1,
+      0.2
+    ],
+    "orientation_euler": [
+      0,
+      -0.785,
+      1.57
+    ]
+  }
+]
