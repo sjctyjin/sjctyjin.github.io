@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GLB Browser</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #15171a;
+      font-family: Arial, sans-serif;
+    }
+
+    #toolbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    #toolbar select, #toolbar button {
+      margin-top: 8px;
+      width: 220px;
+      padding: 6px;
+      border-radius: 6px;
+      border: none;
+    }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./build/three.module.js",
+      "three/addons/": "./examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="toolbar">
+    <div>GLB 模型切換</div>
+    <select id="modelSelect"></select>
+    <button id="reloadBtn">重新載入</button>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    let scene, camera, renderer, controls;
+    let currentModel = null;
+
+    const modelBasePath = 'examples/models/urdf/meshes/';
+    const manifestPath = modelBasePath + 'models.json';
+
+    const modelSelect = document.getElementById('modelSelect');
+    const reloadBtn = document.getElementById('reloadBtn');
+
+    init();
+    animate();
+    loadManifest();
+
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x15171a);
+
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100);
+      camera.position.set(1.8, 1.2, 1.8);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      document.body.appendChild(renderer.domElement);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 0.2;
+      controls.maxDistance = 20;
+      controls.target.set(0, 0.5, 0);
+      controls.update();
+
+      addLights();
+      addGround();
+
+      window.addEventListener('resize', onWindowResize);
+
+      modelSelect.addEventListener('change', () => {
+        loadModel(modelBasePath + modelSelect.value);
+      });
+
+      reloadBtn.addEventListener('click', () => {
+        if (modelSelect.value) {
+          loadModel(modelBasePath + modelSelect.value);
+        }
+      });
+    }
+
+    async function loadManifest() {
+      try {
+        const res = await fetch(manifestPath);
+        if (!res.ok) throw new Error(`讀取 models.json 失敗: ${res.status}`);
+        const data = await res.json();
+
+        const models = data.models || [];
+        if (models.length === 0) {
+          alert('models.json 裡沒有模型');
+          return;
+        }
+
+        modelSelect.innerHTML = '';
+        models.forEach(name => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          modelSelect.appendChild(opt);
+        });
+
+        loadModel(modelBasePath + models[0]);
+
+      } catch (err) {
+        console.error(err);
+        alert('無法讀取 models.json，請確認路徑與 server 是否正常');
+      }
+    }
+
+    function addLights() {
+      const keyLight = new THREE.DirectionalLight(0xffe2b6, 1.6);
+      keyLight.position.set(2.5, 2.8, 2.0);
+      keyLight.target.position.set(0, 0.6, 0);
+      keyLight.castShadow = true;
+      keyLight.shadow.mapSize.setScalar(2048);
+      scene.add(keyLight);
+      scene.add(keyLight.target);
+
+      const fillLight = new THREE.DirectionalLight(0x9bbcff, 0.45);
+      fillLight.position.set(-2.0, 1.5, 2.0);
+      fillLight.target.position.set(0, 0.4, 0);
+      scene.add(fillLight);
+      scene.add(fillLight.target);
+
+      const hemiLight = new THREE.HemisphereLight(0xbfd8ff, 0x1c1c22, 0.4);
+      scene.add(hemiLight);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.08);
+      scene.add(ambientLight);
+    }
+
+    function addGround() {
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(30, 30),
+        new THREE.ShadowMaterial({ opacity: 0.18 })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      scene.add(ground);
+    }
+
+    function loadModel(path) {
+      const loader = new GLTFLoader();
+
+      if (currentModel) {
+        scene.remove(currentModel);
+        disposeModel(currentModel);
+        currentModel = null;
+      }
+
+      loader.load(
+        path,
+        gltf => {
+          currentModel = gltf.scene;
+
+          currentModel.traverse(obj => {
+            if (obj.isMesh) {
+              obj.castShadow = true;
+              obj.receiveShadow = true;
+            }
+          });
+
+          const box = new THREE.Box3().setFromObject(currentModel);
+          const size = box.getSize(new THREE.Vector3());
+          const center = box.getCenter(new THREE.Vector3());
+
+          currentModel.position.x -= center.x;
+          currentModel.position.y -= box.min.y;
+          currentModel.position.z -= center.z;
+
+          scene.add(currentModel);
+          fitCameraToObject(size);
+
+          console.log('已載入:', path);
+        },
+        xhr => {
+          if (xhr.total > 0) {
+            const percent = (xhr.loaded / xhr.total) * 100;
+            console.log(`載入中 ${percent.toFixed(1)}%`);
+          }
+        },
+        err => {
+          console.error('載入模型失敗:', path, err);
+        }
+      );
+    }
+
+    function fitCameraToObject(size) {
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+      let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+      cameraZ *= 1.8;
+
+      camera.position.set(cameraZ, cameraZ * 0.7, cameraZ);
+      controls.target.set(0, size.y * 0.4, 0);
+      controls.update();
+    }
+
+    function disposeModel(root) {
+      root.traverse(obj => {
+        if (obj.geometry) obj.geometry.dispose();
+
+        if (obj.material) {
+          if (Array.isArray(obj.material)) {
+            obj.material.forEach(disposeMaterial);
+          } else {
+            disposeMaterial(obj.material);
+          }
+        }
+      });
+    }
+
+    function disposeMaterial(material) {
+      for (const key in material) {
+        const value = material[key];
+        if (value && value.isTexture) {
+          value.dispose();
+        }
+      }
+      material.dispose();
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+  </script>
+</body>
+</html>
