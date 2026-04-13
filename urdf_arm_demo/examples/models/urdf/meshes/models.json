@@ -1,7 +1,7 @@
 {
   "models": [
+    "tiya.glb",
     "character.glb",
-    "tex_mesh_BW.glb",
-    "tiya.glb"
+    "tex_mesh_BW.glb"
   ]
 }
