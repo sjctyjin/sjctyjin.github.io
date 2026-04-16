@@ -2,6 +2,7 @@
   "models": [
     "tiya.glb",
     "character.glb",
-    "tex_mesh_BW.glb"
+    "tex_mesh_BW.glb",
+    "character_mvadapter_texturing.glb"
   ]
 }
