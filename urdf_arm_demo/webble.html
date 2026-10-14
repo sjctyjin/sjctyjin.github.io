@@ -129,6 +129,19 @@
     <div class="btn-grid">
       <button class="btn-secondary" onclick="sendCommand('RETRACT')">↩ RETRACT 縮回</button>
       <button class="btn-secondary" onclick="sendCommand('HOME')">🏠 HOME 回零</button>
+      <!-- 在 .btn-grid 內或下方加入 -->
+      <button style="background: #6a1b9a; color: white; width: 100%; margin-top: 10px; padding: 12px; font-size: 1rem;" 
+              onclick="confirmSetZero()">
+        📍 將當前位置設為原點 (SET 0)
+      </button>
+      
+      <script>
+      function confirmSetZero() {
+        if (confirm("確認將筆尖當前位置設定為新原點 (0度) 嗎？")) {
+          sendCommand("SET 0");
+        }
+      }
+      </script>
     </div>
   </div>
 
