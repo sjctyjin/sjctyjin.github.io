@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Emm42 打點調參面板</title>
+  <style>
+    :root {
+      --primary: #1976d2;
+      --success: #388e3c;
+      --danger: #d32f2f;
+      --bg: #f4f6f8;
+      --card: #ffffff;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: var(--bg);
+      color: #333;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    h2, h3 { margin: 0 0 12px 0; font-size: 1.1rem; }
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: white;
+      background: #757575;
+    }
+    .badge.connected { background: var(--success); }
+    .badge.disconnected { background: var(--danger); }
+    
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .btn-primary { background: var(--primary); color: white; width: 100%; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-stroke {
+      background: #e53935;
+      color: white;
+      font-size: 1.4rem;
+      padding: 18px;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(229,57,53,0.3);
+    }
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn-secondary { background: #546e7a; color: white; }
+
+    .param-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    .param-group label {
+      width: 110px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .param-group input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      text-align: center;
+    }
+    .param-group button {
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      background: #0288d1;
+      color: white;
+    }
+
+    #log {
+      height: 120px;
+      overflow-y: auto;
+      background: #212121;
+      color: #76ff03;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      border-radius: 6px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 連線卡片 -->
+  <div class="card">
+    <div class="status-bar">
+      <div>
+        <h2 style="display:inline;">Emm42 調參</h2>
+        <span id="statusBadge" class="badge disconnected">未連線</span>
+      </div>
+      <button id="btnConnect" class="btn-primary" style="width:auto; padding:8px 16px;" onclick="toggleConnect()">連線</button>
+    </div>
+  </div>
+
+  <!-- 打點主控卡片 -->
+  <div class="card">
+    <button class="btn-stroke" onclick="sendCommand('STROKE')">💥 STROKE 打點</button>
+    <div class="btn-grid">
+      <button class="btn-secondary" onclick="sendCommand('RETRACT')">↩ RETRACT 縮回</button>
+      <button class="btn-secondary" onclick="sendCommand('HOME')">🏠 HOME 回零</button>
+    </div>
+  </div>
+
+  <!-- 參數即時調節卡片 -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3>運動參數調整 (斷電自動保存)</h3>
+      <button style="background:#455a64; color:white; padding:6px 10px; font-size:0.8rem;" onclick="sendCommand('STATUS')">讀取當前值</button>
+    </div>
+
+    <div class="param-group">
+      <label>打點脈衝 (EXT)</label>
+      <input type="number" id="inpExt" value="700">
+      <button onclick="setParam('EXT', 'inpExt')">寫入</button>
+    </div>
+
+    <div class="param-group">
+      <label>停留時間 (ms)</label>
+      <input type="number" id="inpHold" value="100">
+      <button onclick="setParam('HOLD', 'inpHold')">寫入</button>
+    </div>
+
+    <div class="param-group">
+      <label>轉速 (RPM)</label>
+      <input type="number" id="inpRpm" value="1200">
+      <button onclick="setParam('RPM', 'inpRpm')">寫入</button>
+    </div>
+  </div>
+
+  <!-- 日誌視窗 -->
+  <div class="card">
+    <h3>通訊日誌</h3>
+    <div id="log"></div>
+  </div>
+
+  <script>
+    const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    const RX_CHAR_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"; // 上位機寫入
+    const TX_CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; // ESP32 回傳
+
+    let bleDevice = null;
+    let rxCharacteristic = null;
+    let txCharacteristic = null;
+
+    function addLog(msg) {
+      const logBox = document.getElementById("log");
+      const time = new Date().toTimeString().split(' ')[0];
+      logBox.textContent += `[${time}] ${msg}\n`;
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function setStatus(connected, text) {
+      const badge = document.getElementById("statusBadge");
+      const btn = document.getElementById("btnConnect");
+      badge.textContent = text;
+      if (connected) {
+        badge.className = "badge connected";
+        btn.textContent = "中斷";
+        btn.style.background = "#d32f2f";
+      } else {
+        badge.className = "badge disconnected";
+        btn.textContent = "連線";
+        btn.style.background = "#1976d2";
+      }
+    }
+
+    async function toggleConnect() {
+      if (bleDevice && bleDevice.gatt.connected) {
+        bleDevice.gatt.disconnect();
+        return;
+      }
+      try {
+        addLog("正在搜尋 Emm42_Dotter...");
+        bleDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ name: "Emm42_Dotter" }],
+          optionalServices: [SERVICE_UUID]
+        });
+
+        bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+        addLog("連線中...");
+        const server = await bleDevice.gatt.connect();
+        const service = await server.getPrimaryService(SERVICE_UUID);
+
+        rxCharacteristic = await service.getCharacteristic(RX_CHAR_UUID);
+        txCharacteristic = await service.getCharacteristic(TX_CHAR_UUID);
+
+        await txCharacteristic.startNotifications();
+        txCharacteristic.addEventListener('characteristicvaluechanged', handleNotifications);
+
+        setStatus(true, "已連線");
+        addLog("連線成功！");
+        // 自動查詢一次硬體狀態
+        sendCommand("STATUS");
+      } catch (err) {
+        addLog("連線失敗: " + err.message);
+        setStatus(false, "連線失敗");
+      }
+    }
+
+    function onDisconnected() {
+      setStatus(false, "未連線");
+      addLog("BLE 已斷開");
+      rxCharacteristic = null;
+      txCharacteristic = null;
+    }
+
+    function handleNotifications(event) {
+      const value = new TextDecoder().decode(event.target.value).trim();
+      addLog(`<< ${value}`);
+
+      // 解析 STATUS 回傳: EXT=700 HOLD=100 RPM=1200 ACC=255
+      const extMatch = value.match(/EXT=(\d+)/);
+      const holdMatch = value.match(/HOLD=(\d+)/);
+      const rpmMatch = value.match(/RPM=(\d+)/);
+
+      if (extMatch) document.getElementById("inpExt").value = extMatch[1];
+      if (holdMatch) document.getElementById("inpHold").value = holdMatch[1];
+      if (rpmMatch) document.getElementById("inpRpm").value = rpmMatch[1];
+    }
+
+    async function sendCommand(cmd) {
+      if (!rxCharacteristic) {
+        alert("請先連線藍牙！");
+        return;
+      }
+      try {
+        const encoder = new TextEncoder();
+        await rxCharacteristic.writeValue(encoder.encode(cmd + "\n"));
+        addLog(`>> ${cmd}`);
+      } catch (err) {
+        addLog(`送出失敗: ${err.message}`);
+      }
+    }
+
+    function setParam(type, inputId) {
+      const val = document.getElementById(inputId).value;
+      if (!val) return;
+      sendCommand(`SET_${type} ${val}`);
+    }
+  </script>
+</body>
+</html>
